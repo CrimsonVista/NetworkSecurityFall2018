@@ -29,8 +29,8 @@ def hybrid(car_cost, miles_per_year, cost_of_gas_per_gallon, car_efficiency, car
         car_efficiency: expected miles per gallon of the car
         car_5_year_resale_value: the expected value of the car after 5 years
 
-    >>> hybrid(10000, 2000, 2.50, 45, 7500)
-    (555.0, 3055.0)
+    >>> hybrid(10000, 2000, 2.50, 40, 7500)
+    (625.0, 3125.0)
     """
     # Your solution here.
     pass
@@ -45,11 +45,15 @@ def montehall(num_iterations=1000):
         - a counter which keeps track of if you don't switch doors and win.
 
     >>> switch, no_switch = montehall()
-    >>> switch + no_switch = 1000
+    >>> switch + no_switch
+    1000
     >>> switch > no_switch
+    True
     >>> switch, no_switch = montehall(200)
-    >>> switch + no_switch = 200
+    >>> switch + no_switch
+    200
     >>> switch > no_switch
+    True
     """
     # Your solution here.
     pass
@@ -59,13 +63,13 @@ def hotplate(matrix):
     """
     Returns a 2D matrix in which the heat distribution has stabilized.
     We define stabilization as if no values in the matrix change by
-     no more than 0.1.
+    no more than 0.1.
 
     >>> matrix = [ [0.0, 100.0, 30.7],\
                    [10.5, 45.0, 50.3],\
                    [11.1, 33.5, 48.2]]
     >>> hotplate(matrix)
-    [[55.25, 45.7, 75.15], [18.7, 48.575, 41.3], [22.0, 34.77, 41.9]]
+    [[0.04744, 0.04395, 0.04744], [0.04395, 0.09487, 0.04395], [0.04744, 0.04395, 0.04744]]
     """
     # Your solution here.
     pass
@@ -100,7 +104,7 @@ def unique_words(input):
     >>> mapping['some']
     2
     >>> mapping['words']
-    1
+    2
     """
     # Your solution here.
     pass
