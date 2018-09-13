@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+ <front>
+ 	<title abbrev="NFO">Nielson's Favourite One</title>
+
+ 	<author fullname="Tianyi Wei" initials="T.W." role="editor"
+           surname="Wei">
+     <organization>JHU Network Security Fall 2018</organization>
+
+     <address>
+       <postal>
+         <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>+1 410-528-3148</phone>
+
+       <email>twei15@jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+ </front>
+
+ <middle>
+	<section title="Purpose">
+	<t>The protocol construction work is based on TCP and has made some changes. Its operation environment is assumed that there are hosts and gateways in the internetwork. Hosts are sources and destinations of packets. Hosts are connected to networks, which are in turn interconnected via gateways.</t> 
+
+	<t>The term of package is used generically to mean the data of one transaction between a host and its network. We do not concern the format of data blocks exchanged within the network and the dependence of one packet upon a previous packet.</t>
+
+	<t>The process in host computers transmit data by calling on the NFO and passing buffers of data as arguments. The NFO packages the data from these buffers into segments and calls on the internet NFO module to transmit each segment to the destination NFO.</t> 
+
+	<t>To distinguish an NFO process among several communication streams between itself and another process (or processes), we imagine that each process could have a number of ports through which it communicates with the ports of other processes.</t>
+
+	<t>In our NFO module, the data will be transmitted orderly without error, and NFO focus on byte-oriented which means that the network minimum unit is octet data.</t>
+	</section>
+
+	<section title="Reliable Communication">
+
+	<t>Transmission is made reliable via the use of sequence numbers and acknowledgments. Each octet of data is assigned a sequence number. The sequence number of the first octet data in a segment is transmitted with that segment as the segment sequence number. Numbering within a segment is that the first data octet following the header is lowest numbered, and following octets are numbered consecutively. Segments also carry acknowledgment number which equals to the sequence number of the next expected segment of transmissions in the reverse direction.</t>
+
+	<t>To avoid the conflict that a new segment has the same sequence number as the current segment on the session's, we need to have a sequence number mechanism. When a new connection is made, the initial sequence number (ISN) generator selects a new 32-bit ISN. The ISN generator should be bond to a clock with a specific cycle time. And we assume that any segment will stay in the network no longer than ISN generator cycle time, thus each segment has a unique sequence number.</t>
+
+	<t>When the NFO transmits a segment containing data, it puts a copy on a queue called "retransmission queue" and starts a timer; when the acknowledgment for that segment is received, the segment will be deleted from the queue. If the acknowledgment is not received before the timer runs out, the segment will be retransmitted.</t>
+
+	<t>When the receiver has sent an acknowledgment to transmitter and is waiting for the next segment with the expected sequence number, it neglects any segments with unexpected sequence number.</t>
+
+	<t>By apply the data transmission described above, the order of a serial of segments is ensured.</t>
+	</section>
+
+	<section title="Error Detection">
+	<t>We use the checksum to detect any change during the transmitting procedure. The specific procedure is explained below:</t>
+	<t><list style="numbers">
+		<t>(1)The transmitter counts the 16bit one's complement of the one's complement sum of all 16-bit words in the header and text.</t>
+		<t>(2)If a segment contains an odd number of header and text octets to be checksummed, the last octet is padded on the right with zeros to form a 16-bit word for checksum purposes. The pad will not be transmitted as part of the segment.</t>
+		<t>(3)While the receiver is computing the checksum of the received segment, the checksum field itself is replaced with zeros.</t>
+	</list></t>
+	<t>If the checksum of receiver equals to that of transmitter, there is no error occurred during the transmitting procedure.</t>
+	</section>
+
+	<section title="Data Communication">
+
+		<t>The data that flows on a connection should be thought of a stream of octets, or segments. A segment could contain almost 32-bit data. Upon transmission, data sender packs data in the buffer into segments (data could have different destination ports, then the packing procedure is called demultiplexing), then sends them into network. </t>
+
+		<t>There are gateways on the way of the transmission, which can only divide segments into smaller segments called fragments along with the buffer size of the gateway. </t>
+
+	    <t>Once the fragments arrive at the receiver, they are assembled into segments. Receiver multiplexes them into data with different destination ports. </t>
+
+		<t>The sender of data keeps track on the next sequence number to use in the variable SND.NXT; the receiver of data keeps track on the next sequence number to receive in the variable RCV.NXT; the sender of data also keeps the oldest sequence number of unacknowledged data. If all octet data sent and acknowledged, the three variables should be the same.</t>
+
+		<t>If some data is missed, the retransmission procedure would start. Timeout is designed to restrain the maximum of retransmission. </t>
+	</section>
+
+
+	<section title="Session Establishment">
+		<section title="Session First-time Establishment">
+	<t>Like TCP, NFO also has "three-way handshake". This procedure is initialed by one NFO and responded by another NFO.</t>
+
+	<t>The simplest three-way handshake is shown in figure 1 below. The figures should be interpreted in the following way. Each line is numbered for reference purposes. Right arrows (-->) indicate departure of a TCP segment from TCP A to TCP B, or arrival of a segment at B from A. Left arrows (&lt;--), indicate the reverse. NFO states represent the state ATRER the departure or arrival of the segment (whose contents are shown in the center of each line). Segment contents are shown in abbreviated form, with sequence number, control flags, ACK filed, and sessionID field. Other fields such as window, addresses, lengths, and text have been left out in the interest of clarity.</t>
+
+	      NFO A                                                         NFO B
+   
+	  1.  CLOSED                                                       LISTEN
+  
+	  2.  RFS-SENT          --> &lt;SEQ=100>&lt;SID1>&lt;CTL=RFS>         --> RFS-RECEIVED
+ 
+	  3.  ESTABLISHED  &lt;-- &lt;SEQ=300>&lt;ACK=101>&lt;SID2>&lt;CTL=RFS,ACK> &lt;-- RFS-RECEIVED
+
+	  4.  ESTABLISHED  --> &lt;SEQ=101>&lt;ACK=301>&lt;SID1>&lt;CTL=ACK>   --> ESTABLISHED
+
+	  5.  ESTABLISHED --> &lt;SEQ=101>&lt;ACK=301>&lt;SID1>&lt;CTL=ACK>&lt;DATA> --> ESTABLISHED
+
+	         Basic 3-way Handshake for Session first-time Establishment
+	                              	Figure 1.
+
+	<t>In line 2 of figure 1, NFO A begins a request for session by sending a RFS segment, indicating that it will use sequence numbers starting with sequence number 100, with a SID1, which is encryption of NFO A's IP address. In line 3, NFO	B sends an RFS and acknowledges the RFS it received from NFO A, and also sends a SID2, which is encryption of NFO B's IP address, and. Note that the ackonwledgment filed indicated NFO B is now expecting to hear sequence 101, acknowledging the RFS which occupied sequence 100.</t> 
+	<t>At line 4, NFO A responds with an empty segment containing an ACK for NFO B's RFS; and in line 5, NFO A sends some data. Note that the sequence number of the segment in line 5 is the same as in line 4.</t>
+		</section>
+
+
+		<section title="Session Second-time Establishment">
+	<t>The session second-time establishemnt is based on previous session first-time establishment. In the first-time session, both NFO A and B have saved its peer's SID.</t>
+
+      NFO A                                                         NFO B
+ 
+  1.  CLOSED                                                        LISTEN
+
+  2.  RFS-SENT        --> &lt;SEQ=100>&lt;SID1>&lt;CTL=RFS>           --> RFS-RECEIVED
+
+  3.  ESTABLISHED &lt;-- &lt;SEQ=300>&lt;ACK=101>&lt;SID2>&lt;CTL=RFS,ACK>  &lt;-- RFS-RECEIVED
+
+  4.  ESTABLISHED --> &lt;SEQ=101>&lt;ACK=301>&lt;SID1>&lt;CTL=ACK>&lt;DATA> --> ESTABLISHED
+
+                    Session second-time Establishment
+
+                                Figure 2.
+
+	
+	<t>In line 2 of figure 2, NFO A sends an RFS segment with its SID to request for session. In line 3, after checking NFO A's SID with the original one, NFO B sends an RFS, aknowledgment, and its SID. In line 4, after checking NFO B's SID with the original one, NFO A sends some data.</t>
+        </section>
+    </section>
+
+	<section title="Session Termination">
+	<t>In a case that local user initiates the close. In line 2 of figure 2, NFO A initials a close, sending an EFS segment and expecting to hear sequence 300. No further SENDs from NFO A will be accepted, and it enters the EFS-WAIT-1 state. RECEIVEs are allowed in this state. All segments preceding and including EFS will be retransmitted until acknowledged. Once NFO B has both acknowledged the EFS, NFO A will tear down the connection, and NFO B enters waiting status. The NFO B waits for data, if longer than 2 MSL, it closes.</t>
+
+      NFO A                                                  NFO B
+
+  1.  ESTABLISHED                                          ESTABLISHED
+
+  2.  (Close)
+      EFS-WAIT-1  --> &lt;SEQ=100>&lt;ACK=300>&lt;CTL=EFS,ACK>  --> CLOSE-WAIT
+
+  3.  (2 MSL)     &lt;-- &lt;SEQ=300>&lt;ACK=101>&lt;CTL=ACK>      &lt;-- (2 MSL)
+
+  4.   CLOSED                                              CLOSED
+
+                         Normal Close Sequence
+
+                               Figure 3.
+
+	</section>
+
+	<section title="Header Format">
+	<t>NFO segments are sent as internet datagrams. The Internet Protocol header carries several information fields, including the source and destination host addresses. An NFP header follows the internet header, supplying information specific to the NFO protocol. </t>
+
+	<t>NFO Header Format.</t>
+	
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Source Port          |       Destination Port        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Sequence Number                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Acknowledgment Number                      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        SID(sessionID)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Data |               |A|R|R|E|                               |
+   | Offset| Reserved      |C|S|F|F|            Reserved           |
+   |       |               |K|T|S|S|                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |           Checksum            |   Reserved    |    Padding    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                             data                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+   					     	Header Format
+                              Figure 4.
+
+ 	<t>Source Port: the port of the host which sends the data within the segment.</t>
+ 	<t></t>
+ 	<t>Destination Port: the port of the host which the data within the segment is heading to.</t>
+<t></t>
+ 	<t>Sequence Number: a 32-bit number generated by generator, used as the identification of its segment, pairing with Acknowledgement Number. </t>
+<t></t>
+ 	<t>Acknowledgement Number: a 32-bit number used as the acknowledge to a specific sequence number, pairing with Sequence Number.</t>
+<t></t>
+ 	<t>sessionID: a 32-bit encrypted host ip address string, used as identification to a host, simplying the next connection with the same peer.</t>
+<t></t>
+ 	<t>DataOffset: the offset of data in the segment, used to inform receiver the data size within the segment.</t>
+<t></t>
+ 	<t>ACK: is the acknowledgement sign.</t>
+<t></t>
+ 	<t>RST: is the reset transmission sign.</t>
+<t></t>
+ 	<t>RFS: is the transmission start sign.</t>
+<t></t>
+ 	<t>EFS: is the transmission end sign.</t>
+<t></t>
+ 	<t>Checksum: 16-bit number, using to check the integrity of a segment.</t>
+<t></t>
+ 	<t>Padding: 16-bit number, using to count the checksum of a segment if the octet data number of header and text is odd.</t>
+<t></t>
+    <t>data: is at least one octet long, used as the transmission object on the network.</t>
+
+
+	</section>
+
+	<section title="State Machine">
+		<t>In the figure 6, the procedure of connection establishment and connection termination is illustrated. </t>
+
+                              +---------+              
+                              |  LISTEN |               
+                              +---------+            
+                   rcv RFS      |     |     SEND                
+                  -----------   |     |    -------              
+ +---------+      snd RFS,ACK  /       \   snd RFS          +---------+
+ |         |&lt;-----------------           ------------------>|         |
+ |   RFS   |                    rcv RFS                     |   RFS   |
+ |   RCVD  |&lt;-----------------------------------------------|   SENT  |
+ |         |                    snd ACK                     |         |
+ |         |------------------           -------------------|         |
+ +---------+   rcv ACK of RFS  \       /  rcv RFS,ACK       +---------+
+   |           --------------   |     |   -----------
+   |                  x         |     |     snd ACK
+   |                            V     V
+   |  CLOSE                   +---------+
+   | -------                  |  ESTAB  |
+   | snd EFS                  +---------+
+   |                   CLOSE    |     |    rcv EFS
+   V                  -------   |     |    -------
+ +---------+          snd EFS  /       \   snd ACK          +---------+
+ |  EFS    |&lt;-----------------           ------------------>|  CLOSE  |
+ | WAIT-1  |------------------                              |   WAIT  |
+ +---------+          rcv EFS  \                            +---------+
+                      -------   |                        CLOSE  |
+                      snd ACK   |                       ------- |
+                                V                       snd EFS V
+                           +---------+                     +---------+
+                           | CLOSED  |                     |TIME WAIT|
+                           +---------+                     +---------+
+
+	               NFO Connection State Diagram
+	                         Figure 5.
+
+	</section>
+
+ </middle>
+ <back>
+ </back>
+</rfc>

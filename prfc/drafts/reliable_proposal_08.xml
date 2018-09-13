@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is modified by Seth Nielson for creating P-RFC's
+    (Playground-RFC's). -->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml2rfc.ietf.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+    There has to be one entity for each item to be referenced. 
+    An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC2119 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2360 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2360.xml">
+<!ENTITY RFC2629 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY RFC3552 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5226.xml">
+<!ENTITY RFC0793 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.0793.xml">
+
+<!--tried putting a reference to PRFC1 but didn't work -->
+<!--ENTITY PRFC001 SYSTEM "https://github.com/CrimsonVista/NetworkSecurityFall2018/blob/master/prfc/authoring/p_rfc_1.xml"-->
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+
+
+
+<rfc category="std" docName="rfc2" ipr="playgroundStd_v1_0" number="2">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902, playgroundWinter201501
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+   <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="CPD">Control Delivery Protocol</title>
+
+   <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Shane Sartalamacchia" initials="S.S." role="editor"
+           surname="Sartalamacchia">
+     <organization>JHU Network Security Fall 2018</organization>
+
+     <address>
+       <postal>
+         <street>JHU MSSI Lab 316 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>+1 410-516-6282</phone>
+
+       <email>ssartal1@jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+   <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+	 in the current day and month for you. If the year is not the current one, it is 
+	 necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+	 purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+	 specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>General</area>
+
+   <workgroup>Network Working Group</workgroup>
+
+   <!-- WG name at the upper left corner of the doc,
+        IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>PRFC</keyword>
+
+   <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or on
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+     <t>This document describes the Control Delivery Protocol (CDP). This protocol shall
+     reliably transmit data within the Poly-Localized Algorithmic Yields Generated
+     Remotely On Unused Network Devices (PLAYGROUND) system.</t>
+   </abstract>
+
+ </front>
+
+ <middle>
+
+   <section title="Introduction">
+     <section title="Overview">
+       <t>The Control Delivery Protocol (CDP) is a connection-oriented protocol that
+       provides reliable transmission of data throughout the PLAYGROUND system. It
+       exists at the transport layer within the Open Systems Interconnection (OSI)
+       model. The reliable transmission of data means that the data is in order, reasonably
+       error-free, and guaranteed to be delivered until the connection is closed.</t>
+  
+       <t>The PLAYGROUND system is designed to give students and researchers a sandbox
+       in which to develop network security experiments. For PLAYGROUND experiments that
+       involve a PETF (Playground Engineering Task Force), PRFC's (Playground RFC's) are
+       used in a manner similar to RFC's.</t>
+     </section>
+
+     <section title="Purpose">
+       <t>This memorandum describes the specification of the CDP and how to implement it
+       within the PLAYGROUND system. It includes the establishment of the session as well
+       as the transmission of the data.</t>       
+     </section>
+
+     <section title="Requirements Language">
+       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+       document are to be interpreted as described in <xref
+       target="RFC2119">RFC 2119</xref>.</t>
+     </section>
+   </section>
+   
+   <section title="Functional Specification">
+
+     <section title="Packet Descriptions">
+       <t>This section describes the format of a CDP packet. The following list defines
+       the data types used for fields within a CDP Packet:</t>
+	     <t><list style="empty">
+         <t>BOOL:  a boolean data type; has a value of true or false</t>
+         <t>BUFFER:  a sequence of bytes</t>
+         <t>UINT64:  an unsigned 64-bit integer</t>
+         <t>LIST(UINT64):  a list of multiple UINT64's</t>
+       </list></t>
+
+       <t>Below is the composition of a CDP packet and the definition for each field. Note
+       that some fields within this packet have similar definitions to the fields in a
+       Transmission Control Protocol (TCP) packet as defined in <xref target="RFC0793">RFC 793</xref>.</t>
+       
+       <t>CDP Packet</t>
+	     <t><list style="empty">
+         <t>("synNumber", UINT64),</t>
+         <t>("ackNumber", UINT64),</t>
+         <t>("windowList", LIST(UINT64),</t>
+         <t>("dataSegment", BUFFER)</t>
+         <t>("synFlag", BOOL),</t>
+         <t>("ackFlag", BOOL),</t>
+         <t>("finFlag", BOOL),</t>
+         <t>("pshFlag", BOOL),</t>
+         <t>("rstFlag", BOOL),</t>
+         <t>("errorFlag", BOOL),</t>
+       </list></t>
+
+       <t>synNumber:  the sequence number of the packet.</t>
+
+       <t>ackNumber:  the acknowledgement number of the packet.</t>
+
+       <t>windowList:  the list of sequence numbers the receiver is prepared to accept.</t>
+
+       <t>dataSegment:  the data being transmitted.</t>
+
+       <t>synFlag:  the flag to synchronize sequence numbers.</t>
+
+       <t>ackFlag:  the flag to acknowledge an accepted transmission.</t>
+
+       <t>finFlag:  the flag indicating that there is no more data from the sender; it is also
+       used to indicate that the sender or receiver is done communicating.</t>
+
+       <t>pshFlag:  the flag to indicate that data is to be pushed through from the sender to
+       the receiver.</t>
+
+       <t>rstFlag:  the flag to indicate a reset of the connection.</t>
+
+       <t>errorFlag:  the flag indicating that there is an error with the packet.</t>
+     </section>
+
+     <section title="Session Establishment">
+       <t>To establish a session, the CDP shall use a three-way handshake like
+       the one described in <xref target="RFC0793">RFC 793</xref>. The sender (initiator) of
+       the connection transmits a synFlag and a synNumber in order to initiate the
+       connection.  The sender waits on a response from the receiver before transmitting any
+       additional packets. After the receiver accepts the packet, it then transmits to the
+       sender a synFlag, ackFlag, its own synNumber, and its ackNumber (the
+       sender's synNumber plus 1). The receiver waits on a response from the sender
+       before transmitting any additional packets. The sender accepts the receiver's packet.
+       To acknowledge receipt of the packet, the sender then transmits to the receiver an
+       ackFlag, synFlag, its ackNumber (the receiver's synNumber plus 1), and its own
+       synNumber plus 1.</t>
+
+       <t> Note that the initial sequence number for the sender and receiver is generated
+       randomly to ensure that the number is not being used within an existing connection.</t>
+     </section>
+
+     <section title="Session Termination">
+       <t>A session begins closing when either the sender or receiver of
+       the connection send a finFlag. This flag indicates that the party is
+       finished and wants to close the connection. Before a connection is terminated,
+       both parties must acknowledge the finFlag.</t>
+       
+       <t> After the sender transmits a packet with a finFlag, it waits on a response from
+       the receiver. The receiver accepts the packet. The receiver then transmits a packet
+       with the finFlag and ackFlag to the sender. The receiver waits on a response from the
+       sender. The sender receives the packet. After sending the receiver a packet with the
+       finFlag and ackFlag, the sender closes its connection.  When the receiver obtains the
+       packet (with the finFlag and ackFlag), it closes its connection.  At this point,
+       the session is terminated.</t>
+     </section>
+
+     <section title="Data Transmission">
+       <t>Data transmission in the CDP is byte-oriented and occurs after a connection
+       has been established. It will pass the data to the next appropriate higher OSI
+       model layer for processing as soon as it has any amount of data in order. Due to
+       this processing, it closely resembles a stream of data.</t>
+
+       <t>Each packet is assigned a synNumber and ackNumber. These numbers are incremented
+       as packets are transmitted amongst the sender and receiver. The sender transmits its
+       synNumber, ackNumber, and data to the receiver.  It increments the synNumber based on
+       the last synNumber transmitted and the ackNumber based on the synNumber of the receiver.
+       The receiver transmits its synNumber and ackNumber back to the sender, acknowledging
+       receipt of the data. It increments its synNumber based on the last synNumber transmitted
+       and the ackNumber based on the synNumber of the sender.</t>
+
+       <t>These numbers ensure that the data transmitted is in order and allows for the
+       retransmissions of lost data. The receiver expects a packet with the next incremented
+       synNumber. If the receiver obtains a packet with a synNumber that has already been
+       accepted, it will discard the packet. This process ensures that there is no duplicate
+       data.</t>
+
+       <t>After transmitting data, the sender reviews the windowList to see the amount of
+       additional packets that it can transmit before obtaining acknowledgement from the
+       receiver. The receiver can modify the windowList to ensure the data is not being
+       sent too fast or too slow.</t>
+     </section>
+
+     <section title="Error Handling">
+       <t>The CDP handles errors by retransmitting the data. If a packet's errorFlag is set
+       to True, then the packet will be discarded. If the receiver accepts a packet with the
+       errorFlag, it will discard the packet and not transmit an ackFlag back to the sender.
+       The sender will then follow the process as described in the Data Transmission section
+       of this memorandum.</t>
+       
+       <t>In addition, the use of synNumber and ackNumber aid in the handling of errors. The
+       synNumber allows the receiver to discard any duplicate packets, while the ackNumber
+       enables the sender to know what packets need to be retransmitted. The sender will wait
+       a considerable amount of time to allow the packet to be accepted by the receiver. If
+       the receiver does not obtain the packet by the end of this time, the sender will assume
+       that the packet was lost and will transmit that packet again to the receiver.</t>
+     </section>
+
+     <section title="States">
+       <t>In the CDP, a connection advances through various states. These states are very
+       similar to the states outlined in <xref target="RFC0793">RFC 793</xref>. Note that events
+       trigger the movement from one state to another.  These events include commands from the
+       user, incoming flags, and timeouts. Future updates to this document will include a diagram
+       to better represent the flow throughout the various states.</t>
+       
+       <t>The states and their descriptions are: </t>
+	     <t><list style="numbers">
+         <t>LISTEN:  waiting for a connection request</t>
+         <t>SYN-SENT:  waiting for a matching connection request after having sent a connection
+         request</t>
+         <t>SYN-RECEIVED:  waiting for a confirming connection request acknowledgment after having
+         both received and sent a connection request</t>
+         <t>ESTABLISHED:  an open connection that allows the transfer of data to the user</t>
+         <t>FIN-WAIT-1:  waiting for a connection termination request from the remote CDP, or an
+         acknowledgment of the connection termination request previously sent</t>
+         <t>FIN-WAIT-2:  waiting for a connection termination request from the remote CDP</t>
+         <t>CLOSE-WAIT:  waiting for a connection termination request from the local user</t>
+         <t>CLOSING:  represents waiting for a connection termination request acknowledgment from
+         the remote CDP</t>
+         <t>LAST-ACK:  represents waiting for an acknowledgment of the connection termination request
+         previously sent to the remote CDP (which includes an acknowledgment of its connection
+         termination request)</t>
+         <t>CLOSED:  represents no connection state at all</t>
+       </list></t>
+     </section>
+
+   </section>
+   
+   <section title="Security Considerations">
+     <t>The CDP seeks to transport data reliably over the network. Therefore, this protocol focuses
+     more on this attribute rather than security.  Future updates to this protocol will begin
+     focusing on security.</t>
+     
+     <t>As identified in section 2.1 in <xref target="RFC2360">RFC 2360</xref>, threats to security
+     come from multiple sources to include deliberate and inadvertent user behavior. Some potential
+     attacks against the CDP include: insider threat, data confidentiality, and denial of service
+     attacks.</t>
+     
+     <t>An insider threat can be minimized through access control, security policies, and separating
+     services. To combat threats to confidentiality, one suggestion is to encrypt the data at a
+     higher layer of the OSI model before the data is added to the packet. The CDP is susceptible
+     to denial of service attacks through the flooding of synFlag packets. Security mechanisms
+     implemented at other levels of the OSI model can aid in mitigating this type of attack.</t>
+   </section>
+
+ </middle>
+
+ <!--  *****BACK MATTER ***** -->
+
+ <back>
+   <!-- References split into informative and normative -->
+
+   <!-- There are 2 ways to insert reference entries from the citation libraries:
+    1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+    2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+       (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+    Both are cited textually in the same manner: by using xref elements.
+    If you use the PI option, xml2rfc will, by default, try to find included files in the same
+    directory as the including file. You can also define the XML_LIBRARY environment variable
+    with a value containing a set of directories to search.  These can be either in the local
+    filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+   <references title="Normative References">
+     <!--?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
+     &RFC2119;
+     
+     &RFC2360;
+     
+     &RFC0793;
+
+     <!--&PRFC001;-->
+   </references>
+
+ </back>
+
+</rfc>

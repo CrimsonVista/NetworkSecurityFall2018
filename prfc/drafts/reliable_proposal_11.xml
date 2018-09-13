@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is modified by Seth Nielson for creating P-RFC's
+    (Playground-RFC's). -->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml2rfc.ietf.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+    There has to be one entity for each item to be referenced. 
+    An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC2119 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2360 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2360.xml">
+<!ENTITY RFC2629 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY RFC3552 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5226.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+
+
+
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902, playgroundWinter201501
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+   <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="PRFC's">Playground Request For Comments</title>
+
+   <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Seth James Nielson" initials="S.J." role="editor"
+           surname="Nielson">
+     <organization>JHU Network Security Fall 2017</organization>
+
+     <address>
+       <postal>
+         <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>+1 410-497-7384</phone>
+
+       <email>sethjn@cs.jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+   <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+	 in the current day and month for you. If the year is not the current one, it is 
+	 necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+	 purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+	 specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>General</area>
+
+   <workgroup>Playground Experiment Director</workgroup>
+
+   <!-- WG name at the upperleft corner of the doc,
+        IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>PRFC</keyword>
+
+   <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or nroff
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+     <t>This document describes a easier version of DoD Standard Transmission Control Protocol(ETCP).</t>
+   </abstract>
+ </front>
+
+ <middle>
+   <section title="1. INTRODUCTION">
+     <t>The Easier Transmission Control Protocol (ETCP) is intended for use as a reliable host-to-host protocol in Playground.This document describes the functions to be performed by the Transmission Control Protocol, the program that implements it, and its interface to programs or users that require its services.</t>
+     
+     <section title="1.1. Purpose/Technical Background">
+       <t>Computer communication systems are playing an increasingly important
+role in military, government, and civilian environments. This document focuses its attention primarily on how the protocol works on the Playground. The ETCP provides for reliable inter-process communication between pairs of processes in host computers attached to distinct but interconnected computer communication networks. <xref
+       target="RFC2119">RFC 2119</xref>.</t>
+     </section>
+   </section>
+   
+  
+    
+	<section title="2. PHILOSOPHY">	
+    </section>
+	
+	<section title="2.1. Session Establishment">
+		<t>To establish a connection, ETCP uses a three-way handshake. Before a client attempts to connect with a server, the server must first bind to and listen at a port to open it up for connections: this is called a passive open. Once the passive open is established, a client may initiate an active open. To establish a connection, the three-way (or 3-step) handshake occurs:
+1.  The active open is performed by the client sending a SYN to the server. The client sets the segment's sequence number to a random value A.
+2.  In response, the server replies with a SYN-ACK. The acknowledgment number is set to one more than the received sequence number i.e. A+1, and the sequence number that the server chooses for the packet is another random number, B.
+3.  Finally, the client sends an ACK back to the server. The sequence number is set to the received acknowledgement value i.e. A+1, and the acknowledgement number is set to one more than the received sequence number i.e. B+1.
+At this point, both the client and server have received an acknowledgment of the connection. The steps 1, 2 establish the connection parameter (sequence number) for one direction and it is acknowledged. The steps 2, 3 establish the connection parameter (sequence number) for the other direction and it is acknowledged. With these, a full-duplex communication is established.
+</t>
+</section>
+		
+		<section title= "2.2. Session Termination">
+      <t>To terminate a connection, ETCP uses a simplified handshake. After the side that sent the first FIN has responded with the final ACK, it waits for a timeout before finally closing the connection, during which time the local port is unavailable for new connections; this prevents confusion due to delayed packets being delivered during subsequent connections.</t>
+      </section>
+    <section title='2.3. Data Transmission'>
+      <t>The data that flows on a connection may be thought of as a stream of octets.  The sending user indicates in each SEND call whether the data in that call (and any preceeding calls) should be immediately pushed through to the receiving user by the setting of the PUSH flag.
+A sending ETCP is allowed to collect data from the sending user and to
+send that data in segments at its own convenience, until the push
+function is signaled, then it must send all unsent data.  When a
+receiving TCP sees the PUSH flag, it must not wait for more data from
+the sending ETCP before passing the data to the receiving process. To assure correctness a checksum field is included; see checksum computation section for details on checksumming. The ETCP checksum is a weak check by modern standards. Data Link Layers with high bit error rates may require additional link error correction/detection capabilities. The weak checksum is partially compensated for by the common use of a CRC or better integrity check at layer 2, below both TCP and IP, such as is used in PPP or the Ethernet frame. However, this does not mean that the 16-bit TCP checksum is redundant: remarkably, introduction of errors in packets between CRC-protected hops is common, but the end-to-end 16-bit ETCP checksum catches most of these simple errors. This is the end-to-end principle at work.</t>	
+   </section>
+   
+   <section title="3. FUNCTIONAL SPECIFICATION">
+   
+   </section>
+   
+   <section title="3.1. Packet Description">
+   <t>The packet used in ETCP inherits from PacketType. Each packet has a FiledList which contains filed, such as UINT (with UINT8, UINT16, UINT32, and UINT64 variants), INT (with INT8, INT16, INT32, and INT64 variants),BOOL, LIST, STRING, BUFFER and ComplexFieldType.</t>
+   </section>
+   
+   <section title="3.2.  Computational Algorithms">
+   <t>The checksum field is the 16 bit one's complement of the one's complement sum of all 16-bit words in the header and text. If a segment contains an odd number of header and text octets to be checksummed, the last octet is padded on the right with zeros to form a 16-bit word for checksum purposes. The pad is not transmitted as part of the segment. While computing the checksum, the checksum field itself is replaced with zeros.</t>
+   </section>
+   <section title="3.3. State Machine">
+    <t>A ETCP connection is managed by an operating system through a programming interface that represents the local end-point for communications, the Internet socket. During the lifetime of a TCP connection the local end-point undergoes a series of state changes:
+LISTEN:(server) represents waiting for a connection request from any remote ETCP and port.
+SYN-SENT:(client) represents waiting for a matching connection request after having sent a connection request.
+SYN-RECEIVED:(server) represents waiting for a confirming connection request acknowledgment after having both received and sent a connection request.
+ESTABLISHED:(both server and client) represents an open connection, data received can be delivered to the user. The normal state for the data transfer phase of the connection.
+CLOSE-WAIT:(both server and client) represents waiting for a connection termination request from the local user.
+CLOSING:(both server and client) represents waiting for a connection termination request acknowledgment from the remote TCP.
+LAST-ACK:(both server and client) represents waiting for an acknowledgment of the connection termination request previously sent to the remote TCP (which includes an acknowledgment of its connection termination request).
+TIME-WAIT:(either server or client) represents waiting for enough time to pass to be sure the remote TCP received the acknowledgment of its connection termination request. [According to RFC 793 a connection can stay in TIME-WAIT for a maximum of four minutes known as two MSL (maximum segment lifetime).]
+</t>
+   </section>
+ </middle>
+
+ <!--  *****BACK MATTER ***** -->
+
+ <back>
+   <!-- References split into informative and normative -->
+
+   <!-- There are 2 ways to insert reference entries from the citation libraries:
+    1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+    2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+       (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+    Both are cited textually in the same manner: by using xref elements.
+    If you use the PI option, xml2rfc will, by default, try to find included files in the same
+    directory as the including file. You can also define the XML_LIBRARY environment variable
+    with a value containing a set of directories to search.  These can be either in the local
+    filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+   <references title="Normative References">
+     <!--?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
+     &RFC2119;
+     
+     &RFC2360;
+     
+   </references>
+
+
+   <!-- Change Log
+
+v00 2006-03-15  EBD   Initial version
+
+v01 2006-04-03  EBD   Moved PI location back to position 1 -
+                     v3.1 of XMLmind is better with them at this location.
+v02 2007-03-07  AH    removed extraneous nested_list attribute,
+                     other minor corrections
+v03 2007-03-09  EBD   Added comments on null IANA sections and fixed heading capitalization.
+                     Modified comments around figure to reflect non-implementation of
+                     figure indent control.  Put in reference using anchor="DOMINATION".
+                     Fixed up the date specification comments to reflect current truth.
+v04 2007-03-09 AH     Major changes: shortened discussion of PIs,
+                     added discussion of rfc include.
+v05 2007-03-10 EBD    Added preamble to C program example to tell about ABNF and alternative 
+                     images. Removed meta-characters from comments (causes problems).
+
+v06 2010-04-01 TT     Changed ipr attribute values to latest ones. Changed date to
+                     year only, to be consistent with the comments. Updated the 
+                     IANA guidelines reference from the I-D to the finished RFC.  
+                     
+SETH NIELSON:
+  Altered for PLAYGROUND AND PRFC's
+  2016-09-21 SJN PRFC 1
+
+  Updated for Fall 2018
+  2017-10-1
+  -->
+ </back>
+</rfc>
