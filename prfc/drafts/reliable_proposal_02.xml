@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is modified by Seth Nielson for creating P-RFC's
+    (Playground-RFC's). -->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml2rfc.ietf.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+    There has to be one entity for each item to be referenced. 
+    An alternate method (rfc include) is described in the references. -->
+
+<!ENTITY RFC2119 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2360 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2360.xml">
+<!ENTITY RFC2629 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2629.xml">
+<!ENTITY RFC3552 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml">
+<!ENTITY RFC5226 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5226.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+
+
+
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902, playgroundWinter201501
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+   <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="PRFC's">Playground Request For Comments</title>
+
+   <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Kandarp Khandwala" initials="K.K." role="editor"
+           surname="Khandwala">
+     <organization>JHU Network Security Fall 2018</organization>
+
+     <address>
+       <postal>
+         <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>+1 443-763-9251</phone>
+
+       <email>kck@jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+   <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+	 in the current day and month for you. If the year is not the current one, it is 
+	 necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+	 purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+	 specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>General</area>
+
+   <workgroup>Playground Experiment Director</workgroup>
+
+   <!-- WG name at the upperleft corner of the doc,
+        IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>PRFC</keyword>
+
+   <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or nroff
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+     <t>The Reliable Internetwork Playground Protocol (RIPP) defines
+      the standards used to communicate between entities over the Playground
+      network. It reliably establishes connections, transmits data with certain
+      degree of error detection and correction and defines a graceful way of
+      terminating the connection. It also communicates with the upper and lower
+      layers using multiplexing and demultiplexing of data streams.</t>
+   </abstract>
+ </front>
+
+ <middle>
+   <section title="Introduction">
+     <t>RFC's (Request for Comments) are a publication of the Internet 
+     Engineering Task Force (IETF). RFC's have many purposes including
+     the publication of standards, general information, and best
+     practices.</t>
+     
+     <t>The PLAYGROUND experiment, developed by Seth James Nielson,
+     is a pedigogical framework for instructing principles of Internet
+     Security. The primary goal of the PLAYGROUND framework is to provide
+     a network system that allows students and researchers to develop
+     security mechanisms as well as attacks against them. The PLAYGROUND
+     system is designed to provide a complex enough system to enable
+     kinds of attacks and defenses one finds in the real Internet but
+     with a much reduced complexity.</t>
+     
+     <t>Not only does PLAYGROUND provide a reduced complexity, but it
+     also allows a student to think in terms of principles instead of
+     just in raw implementation. Cross-site scripting attacks may
+     disappear in the future, but the principles of colliding security
+     spaces will not. PLAYGROUND allows the students to try out principles
+     in a new environment and with new concrete instantiations.</t>
+     
+     <t>Standards and other publications, such as RFC's, are a critical
+     part of the security process. Open standards allow design flaws
+     to be captured early in the development of an Internet protocol
+     or system. Discovered flaws can be reported and fixed quickly
+     and effectively.</t>
+     
+     <t>Accordingly, as part of the PLAYGROUND experiment, collaborating
+     participants, such as the students in a class, can practice and
+     experiment with a publication process similar to RFC's. These publications
+     are called Playground RFC's and follow the same formats and
+     serve the same purposes insofar as possible.</t>
+     
+     <t>This memo describes the PRFC standards, largely pointing to the
+     corresponding standards for RFCs. Differences, where they exist,
+     are noted. Also included is a description of a modified xml2rfc tool
+     that can help to produce PRFC's with the proper formatting.</t>
+
+     <section title="Requirements Language">
+       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+       "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+       document are to be interpreted as described in <xref
+       target="RFC2119">RFC 2119</xref>.</t>
+     </section>
+   </section>
+   
+   
+    <section title="Copyright Information">
+    <t>The PLAYGROUND experiment is still new and has not yet developed
+    a policy that has been reviewed by legal counsel. However, at present,
+    the following text MUST be used in the PRFC's.</t>
+    
+    <t>The copyright notice on the front page of the PRFC should read:
+    "Copyright (c) 2018 SETH JAMES NIELSON.  All rights reserved.</t>
+
+   <t>This document is used solely for educational purposes.  Any citations
+   within this document are also for educational purposes and also for
+   technical reference.  If any of these cited elements are protected
+   under copyright, their inclusion here falls under Fair Use
+   provisions."</t>
+   
+   <t>Student authors MUST grant copyrights to SETH JAMES NIELSON. However,
+   they may also retain copyrights for themselves and add their names to the
+   copyright notice accordingly.</t>
+   
+   <t> The final page of the PRFC MUST include a section entitled 
+   "Full Copyright Statement" that reads:</t>
+   
+   <t>"Copyright (C) Seth James Nielson (2018).  All Rights Reserved.</t>
+
+   <t>This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the PLAYGROUND experiment or
+   other associated organizations, except by explicit permission.</t>
+
+   <t>The limited permissions granted above are perpetual and will not be
+   revoked by SETH JAMES NIELSON or his successors or assigns.</t>
+
+   <t>This document and the information contained herein is provided on an
+   "AS IS" basis and SETH JAMES NIELSON and associated academic
+   institutions DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE."</t>
+   
+   <t>After the "Full Copyright Statement" the PRFC MUST include a section
+   entitled "Intellectual Property" that reads:</t>
+
+   <t>The PLAYGROUND framework and student submissions for PLAYGROUND are
+   intended to be free of any intellectual property conflicts.  All
+   submitting parties, especially students, are not allowed to submit
+   source code, specifications, or other components that are known to be
+   protected by copyright, patents, or other IP mechanisms.  Students
+   submitting creative content grant shared rights and ownership of
+   their content to the PLAYGROUND project.  Specifically, any
+   submission can be used in future educational settings including
+   subsequent PLAYGROUND experiments.</t>
+
+   <t>Any interested party is invited to bring to the experiment director's
+   attention any copyrights, patents or patent applications, or other
+   proprietary rights which may cover technology that may be currently
+   in use without permission.</t>
+
+   <t>It should be noted that these statements have not been reviewed by
+   legal counsel.  Moreover, the academic institutions at which
+   PLAYGROUND experiments take place may have additional or even
+   conflicting copyright and intellectual property rules.  Accordingly,
+   concerned parties may need to contact their own lawyer and/or
+   resources at their institution to understand the rights and
+   limitations associated with code donated to a PLAYGROUND experiment."</t>
+   
+   <t>As with the initial copyright notice, the Copyright assignment to
+   Seth James Nielson can be agumented the the names of the authors.</t>
+    </section>
+  
+
+   <!--
+   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   @                            @
+   @ Protocol Definition of TCP @ 
+   @                            @
+   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    -->
+
+
+   <section title="Purpose/Technical Background">
+    <t> In this document, we describe Reliable Internetwork Playground Protocol (R.I.P.P),
+      a protocol which is used for communication over the Playground -
+      a network system that allows students and researchers to develop
+      security mechanisms as well as attacks against them - defined in 
+      JHU Network Security class. </t>
+   </section>
+
+   <section title="Protocol Specifications">
+   <section title="Session Establishment">
+     <t>RIPP protocol consists of a unique Playground IP Address (PIP) which will uniquely 
+     identify the machine connected to the Playground network. RIPP also has port identifiers
+     built in to identify and handle multiplexing and demultiplexing which can handle multiple
+     separate data streams.
+    </t>
+
+    <t>RIPP performs a "three-way handshake" which establishes the session between the communicating 
+      entities which is followed by data transmission. Establishing a session is essential
+      before any transmission of payload can occur. Similarly, no data can be transferred after 
+      the session has been terminated. There is no restriction on who can establish a connection.
+      It can be initiated by either party in the communication channel. Once an entity initiates
+      the connection, the other party should respond with an acknowledgment. 
+    </t>
+
+    <t>A simple "three-way handshake" is shown in figure 1 below. 
+      The figure shows 2 parties RIPP A and RIPP B performing the handshake.
+      In this scenario, RIPP A initiates the connection and RIPP B is 
+      responding to the handshake. RIPP A sends a SYN packet indicating that it will use 
+      a certain sequence number. RIPP B send back a SYN and acknowledges the SYN it 
+      received from RIPP A. The ACK sent by RIPP B states that it is expecting to hear sequence
+      which follows the previous sequence number, acknowledging the earlier SYN.
+      RIPP A responds with an empty ACK and then starts sending data from the next stage.
+    </t>
+    <t>
+      <figure>
+        <artwork><![CDATA[
+    RIPP A                                                 RIPP B
+
+1.  CLOSED                                                LISTEN
+  
+2.  SYN-SENT    -->     (SEQ=100)(CTL=SYN)            --> SYN-RECEIVED
+
+3.  ESTABLISHED --> (SEQ=300)(ACK=101)(CTL=SYN,ACK)   <-- SYN-RECEIVED
+
+4.  ESTABLISHED -->  (SEQ=101)(ACK=301)(CTL=ACK)      --> ESTABLISHED
+
+5.  ESTABLISHED --> (SEQ=101)(ACK=301)(CTL=ACK)(DATA) --> ESTABLISHED
+
+  Figure 1: Basic 3-Way Handshake for Connection Synchronization
+      ]]>
+        
+      </artwork>
+    </figure>
+    </t>
+
+    <t>The sequence number of the SYN packet can be based on any number generation system but 
+       should be different for all the SYN packets sent out. No two connections should have
+       the same sequence number. Further, RIPP B does not need to ACK every SYN packet sent to it.
+    </t>
+   </section>
+
+   <section title="Session Termination">
+     <t>The RIPP protocol specific a set of exchanges required to gracefully shut down the 
+      connection between communicating entities. The "four-way handshake" process is used
+      for correctly terminating the connection. The first step for terminating the connection
+      is to send a FIN packet to the other client. There is no restriction on who can 
+      initiate the FIN request; any one of the communicating parties can send it to the 
+      other one. Once the other party receives the FIN request, it should send back a FIN-ACK
+      packet to acknowledge the RIP packet. Once the acknowledgement is sent out, the 
+      data packets left in the buffer are cleared out and an acknowledgment for them is 
+      awaited. When the sender receiver the ACK for all the packets, it sends out a FIN 
+      message and waits for a FIN-ACK from the other party. The connection can then 
+      close gracefully after the FIN-ACK packet is sent out.
+    </t>
+
+      <t>A simple version of the above "four-way handshake" to terminate the connection
+        is shown below in figure 2. 
+      </t>
+
+      <t>
+        <figure>
+          <artwork>
+            <![CDATA[
+    RIPP A                                                 RIPP B
+
+1.  ESTABLISHED                                          ESTABLISHED
+
+2.  (Close)
+               --> <SEQ=100><ACK=300><CTL=FIN,ACK>  --> 
+
+3.             <-- <SEQ=300><ACK=101><CTL=ACK>      <-- 
+                                                        Clear Buffer
+4.                                                       (Close)
+               <-- <SEQ=300><ACK=101><CTL=FIN,ACK>  <-- 
+
+5.             --> <SEQ=101><ACK=301><CTL=ACK>      --> 
+
+6.  CLOSED
+
+  Figure 2: Basic 4-Way Handshake for Connection Termination
+      ]]>
+        
+          </artwork>
+        </figure>
+    </t>
+   </section>
+
+   <section title="Data Transmission">
+     <t>After the connection has been established, the sender and receiver can send packets
+      of data to each other and continue communicating with each other. The way that 
+      data flows between these two entities can be perceived as a stream oriented 
+      transfer of data. The RIPP protocol sends chunks of bytes from the sender to the
+      receiver. The RIPP protocol has a maximum payload size of 2048 bytes. In case the
+      payload is greater than 2048, the RIPP protocol should break it down into chunks of 
+      2048 bytes. The data in the payload received by the RIPP protocol needs to be 
+      encapsulated into a Buffer.</t>
+
+      <t>On the client side, the SEQ Number header field for the first data packet
+       sent is set equal to the SEQ number of the ACK packet sent during the RIPP handshake.
+       For subsequent data packets, the SEQ number is determined by adding
+       the sequence number of the previous packet with the length of the 
+       previous packet. On the server side, the first data packet sent has
+       the sequence number of the SYN-ACK packet sent during the handshake.
+       And similarly, for the subsequent packets, the sequence number is
+       determined by adding the sequence number and length of the previous packet.
+ 
+      </t>
+
+   </section>
+
+   <section title="Error Handling">
+     <t>There are several different scenarios that can occur while transmitting 
+      data from one RIPP client to the other.
+      <list style="numbers">
+        <t>Incorrect order of the packets</t>
+        <t>Loss of packets</t>
+        <t>Corrupt data inside the packet</t>
+        <t>Phantom packets (receiver gets packets that have never been sent)</t>
+       </list> 
+       <list style="letters">
+        <t>RIPP takes a simple approach to solving all these scenarios. In the scenario 
+       where there is a loss of packets during handshake transmission or connection
+       establishment, the corresponding party should resend the previous packet with
+       a delay by keeping a timer.</t>
+       <t>
+        Both the communicating parties maintain a protocol buffer at their end - a sort of
+        cache which temporarily stores data and waits for the missing packet and out
+        of order data. As a result, RIPP can gracefully handle out of order packets and
+        missing packets by storing them in the buffer before sending to the upper layers
+        and sending ACK messages to the sender indicating retransmission which the 
+        sender can resend. The sender also maintains a window on its side with the 
+        timestamp when it was sent. If it does not receive an ACK before the timer expiry,
+        it automatically resends the packet. 
+      </t>
+      <t>RIPP protocol also has a provision for correcting corrupt header as well as data inside the packet.
+        A checksum field inside the RIPP header provides basic integrity of the message.
+        RIPP uses the checksum to detect corruption of packet headers. i.e. the source, destination,
+        and other meta-data.
+        It also includes an extra checksum that protects the packet "payload" as well as the header.
+        In case of simple scenarios this checksum can just be a simple one's complement or other
+        fast and simple hash functions. The sender computes the hash and appends it in the 
+        header as well as the data sent to the receiver. The receiver verifies it and in case
+        of mismatch in the checksum, simply drops the packet and waits for retransmission.
+      </t>
+      <t>In scenarios where the channel may be noisy, the RIPP protocol includes an optional
+        forward error correcting code (ECC) which provides reliability at the expense of 
+        redundancy of sending data. The redundancy allows the receiver to detect a limited
+        number of errors that may occur anywhere in the message, and often to correct 
+        these errors without re-transmission.
+        FEC gives the receiver the ability to correct errors without needing a reverse 
+        channel to request re-transmission of data, but at the cost of a fixed,
+        higher forward channel bandwidth
+      </t>
+      <t>In the scenario where duplicate data is received during retransmission, judged by
+        SEQ number of the packet, the receiver simply discards them. In the case where
+        phantom packets (unknown or radically different SEQ numbers) are received,
+        the receiver simply discards them according to the RIPP protocol.
+      </t>
+    </list>
+    </t>
+   </section>
+
+   <section title="Packet Descriptions">
+     <t>Based on the discussion above, the RIPP packet can be defined as follows by utilizing
+      the Playground packet types: -
+    </t>
+      <t>
+        <figure>
+          <artwork>
+<![CDATA[
+from playground.network.packet import PacketType
+from playground.network.packet.fieldtypes import \
+UINT32,UINT8,UINT16, STRING, BUFFER, BOOL
+from playground.network.packet.fieldtypes.attributes import \
+Optional
+
+class RIPPPacket(PacketType):
+
+   DEFINITION_IDENTIFIER = "RIPP.kandarp.packet"
+   DEFINITION_VERSION = "1.0"
+
+   FIELDS = [
+
+   ("Type", UINT8),
+   ("SeqNo", UINT32({Optional: True})),
+   ("AckNo", UINT32({Optional: True})),
+   ("CRC", UINT16),
+   ("FRC", UINT32({Optional: True})),
+   ("Data", BUFFER({Optional: True}))
+
+   ]
+ ]]>
+          </artwork>
+        </figure>
+    </t>
+   </section>
+
+   <section title="Computational Algorithms">
+     <t>The algorithm of choice is left to the user. The RIPP protocol
+      only specifies that the chosen algorithms used for CRC and FRC be 
+      simple, fast and should focus on speed rather than collision resistance
+      or other unnecessary properties of hash functions or error correcting codes.
+      The Forward Error Correcting code should also enable correction up to a
+      certain limit without adding too much bulk to the packet or the header.
+    </t>
+   </section>
+
+   <section title="State Machines">
+     <t>A connection progresses through a series of states during its
+  lifetime.  The states are:  LISTEN, SYN-SENT, SYN-RECEIVED,
+  ESTABLISHED, FIN-WAIT-1, FIN-WAIT-2, CLOSE-WAIT, CLOSING, LAST-ACK,
+  TIME-WAIT, and the fictional state CLOSED.  CLOSED is fictional
+  because it represents the state when there is no TCB, and therefore,
+  no connection.  Briefly the meanings of the states are:
+  <list style="letters">
+    <t>LISTEN - represents waiting for a connection request from any remote
+    TCP and port.</t>
+    <t>SYN-SENT - represents waiting for a matching connection request
+    after having sent a connection request.</t>
+    <t>SYN-RECEIVED - represents waiting for a confirming connection
+    request acknowledgment after having both received and sent a
+    connection request.</t>
+
+    <t>ESTABLISHED - represents an open connection, data received can be
+    delivered to the user.  The normal state for the data transfer phase
+    of the connection.</t>
+
+    <t>FIN-WAIT-1 - represents waiting for a connection termination request
+    from the remote TCP, or an acknowledgment of the connection
+    termination request previously sent.</t>
+
+    <t>FIN-WAIT-2 - represents waiting for a connection termination request
+    from the remote TCP.</t>
+
+    <t>CLOSE-WAIT - represents waiting for a connection termination request
+    from the local user.</t>
+
+    <t>CLOSING - represents waiting for a connection termination request
+    acknowledgment from the remote TCP.</t>
+
+    <t>LAST-ACK - represents waiting for an acknowledgment of the
+    connection termination request previously sent to the remote TCP
+    (which includes an acknowledgment of its connection termination
+    request).</t>
+
+    <t>TIME-WAIT - represents waiting for enough time to pass to be sure
+    the remote TCP received the acknowledgment of its connection
+    termination request.</t>
+
+    <t>CLOSED - represents no connection state at all.</t>
+  </list>
+
+  Figure 3 below specifies the state diagram for the RIPP protocol.</t>
+     <t>
+      <figure>
+      <artwork>
+
+<![CDATA[
+
+                              +---------+ ---------\      active OPEN
+                              |  CLOSED |            \    -----------
+                              +---------+<---------\   \   create TCB
+                                |     ^              \   \  snd SYN
+                   passive OPEN |     |   CLOSE        \   \
+                   ------------ |     | ----------       \   \
+                    create TCB  |     | delete TCB         \   \
+                                V     |                      \   \
+                              +---------+            CLOSE    |    \
+                              |  LISTEN |          ---------- |     |
+                              +---------+          delete TCB |     |
+                   rcv SYN      |     |     SEND              |     |
+                  -----------   |     |    -------            |     V
+ +---------+      snd SYN,ACK  /       \   snd SYN          +---------+
+ |         |<-----------------           ------------------>|         |
+ |   SYN   |                    rcv SYN                     |   SYN   |
+ |   RCVD  |<-----------------------------------------------|   SENT  |
+ |         |                    snd ACK                     |         |
+ |         |------------------           -------------------|         |
+ +---------+   rcv ACK of SYN  \       /  rcv SYN,ACK       +---------+
+   |           --------------   |     |   -----------
+   |                  x         |     |     snd ACK
+   |                            V     V
+   |  CLOSE                   +---------+
+   | -------                  |  ESTAB  |
+   | snd FIN                  +---------+
+   |                   CLOSE    |     |    rcv FIN
+   V                  -------   |     |    -------
+ +---------+          snd FIN  /       \   snd ACK          +---------+
+ |  FIN    |<-----------------           ------------------>|  CLOSE  |
+ | WAIT-1  |------------------                              |   WAIT  |
+ +---------+          rcv FIN  \                            +---------+
+   | rcv ACK of FIN   -------   |                            CLOSE  |
+   | --------------   snd ACK   |                           ------- |
+   V        x                   V                           snd FIN V
+ +---------+                  +---------+                   +---------+
+ |FINWAIT-2|                  | CLOSING |                   | LAST-ACK|
+ +---------+                  +---------+                   +---------+
+   |                rcv ACK of FIN |                 rcv ACK of FIN |
+   |  rcv FIN       -------------- |    Timeout=2MSL -------------- |
+   |  -------              x       V    ------------        x       V
+    \ snd ACK                 +---------+delete TCB         +---------+
+     ------------------------>|TIME WAIT|------------------>| CLOSED  |
+                              +---------+                   +---------+
+
+                      RIPP Connection State Diagram
+                               Figure 3.
+
+ ]]>
+      </artwork>
+    </figure>
+     </t>
+   </section>
+
+  </section>
+ </middle>
+
+ <!--  *****BACK MATTER ***** -->
+
+ <back>
+   <!-- References split into informative and normative -->
+
+   <!-- There are 2 ways to insert reference entries from the citation libraries:
+    1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+    2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+       (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+    Both are cited textually in the same manner: by using xref elements.
+    If you use the PI option, xml2rfc will, by default, try to find included files in the same
+    directory as the including file. You can also define the XML_LIBRARY environment variable
+    with a value containing a set of directories to search.  These can be either in the local
+    filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+   <references title="Normative References">
+     <!--?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
+     &RFC2119;
+     
+     &RFC2360;
+
+   </references>
+
+
+   <!-- Change Log
+
+v00 2006-03-15  EBD   Initial version
+
+v01 2006-04-03  EBD   Moved PI location back to position 1 -
+                     v3.1 of XMLmind is better with them at this location.
+v02 2007-03-07  AH    removed extraneous nested_list attribute,
+                     other minor corrections
+v03 2007-03-09  EBD   Added comments on null IANA sections and fixed heading capitalization.
+                     Modified comments around figure to reflect non-implementation of
+                     figure indent control.  Put in reference using anchor="DOMINATION".
+                     Fixed up the date specification comments to reflect current truth.
+v04 2007-03-09 AH     Major changes: shortened discussion of PIs,
+                     added discussion of rfc include.
+v05 2007-03-10 EBD    Added preamble to C program example to tell about ABNF and alternative 
+                     images. Removed meta-characters from comments (causes problems).
+
+v06 2010-04-01 TT     Changed ipr attribute values to latest ones. Changed date to
+                     year only, to be consistent with the comments. Updated the 
+                     IANA guidelines reference from the I-D to the finished RFC.  
+                     
+SETH NIELSON:
+  Altered for PLAYGROUND AND PRFC's
+  2016-09-21 SJN PRFC 1
+
+  Updated for Fall 2018
+  2017-10-1
+  -->
+ </back>
+</rfc>

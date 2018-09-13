@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902, playgroundWinter201501
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+   <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="BCP">Bro Control Protocol</title>
+
+   <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Benjamin Jacob Brostoff" initials="B.J." role="editor"
+           surname="Brostoff">
+     <organization>JHU Network Security Fall 2018</organization>
+
+     <address>
+       <postal>
+         <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>555-555-5555</phone>
+
+       <email>benjamin.brostoff@jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+   <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+     in the current day and month for you. If the year is not the current one, it is 
+     necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+     purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+     specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>General</area>
+
+   <workgroup>Playground Experimentor</workgroup>
+
+   <!-- WG name at the upperleft corner of the doc,
+        IETF is fine for individual submissions.  
+     If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>BCP</keyword>
+
+   <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or nroff
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+     <t>For Lab v 1.0 I have created Bro Control Protocol (BCP). It is quite similar to TCP,
+     but it has some unique features like checksum hashing with a real algorithm.  It is 
+     much more "lightweight" than TCP and also comes built in Python instead of ugly 
+     pseudocode with byte lengths.  If TCP can be considered the gold standard for communication
+     protocols, BCP is its obtuse cousin that only communicates in grunts and nods.
+     </t>
+   </abstract>
+ </front>
+ 
+ <middle>
+     <section title="Overview">
+        <section title="Document and Design Outline">
+        <t>This document outlines a byte-oriented stream control protocol.  Frankly, it is very similar 
+        to TCP.  Offering native encryption, messing with error correction or flow control all create
+        serious problems with trust and reliability.  The playground serialization/deserialization 
+        and the requirement that this protocol not use ports preclude the creation of something like SCTP.
+        What we are left with is, consequently, TCP.  BCP is written to be python compatible and so 
+        objects will be specified as standard python objects rather than in byte-length or octet form.  
+        </t></section>
+        <section title="Requirements">
+        <t>Bro Control Protocol is a transport layer protocol with enforced reliable delivery.  
+        Packets will be delivered in order to comply with serialization requirements.  
+        They will be error-free as guaranteed by a limited checksum.   
+        </t></section>
+     </section>
+     <section title="Sessions">
+        <section title="Outline">
+        <t>BCP establishes sessions between unreliable hosts over a network.  It relies on the existence 
+        of an IP layer above it which theoretically provides it with source and destination transit as
+        well as provides a method by which encapsulated data should travel "over the wire."  
+        Moving in the other direction, BCP assumes the existence of some sort of data serializer/deserializer
+        capable of properly marshalling our objects.  
+        </t></section>
+        <section title="Relation to Other Protocols">
+        <t>The following diagram illustrates the place of the TCP in the protocol
+        hierarchy:<figure><artwork><![CDATA[
++------+ +------+ +-----+       +-----+
+|Playground Sesh| |Voice|  ...  |     |  Application Level
++------+ +------+ +-----+       +-----+
+     |   |         |             |
+    +-----+     +-----+       +-----+
+    | BCP |     | RTP |  ...  |     |  Host Level
+    +-----+     +-----+       +-----+
+       |           |             |
+    +--------------------------------------+
+    |  IP stuff Dr. Nielson has cooked up  |  Gateway Level
+    +--------------------------------------+
+                   |
+      +---------------------------+
+      |   Local Network Protocol  |    Network Level
+      +---------------------------+
+
+                 Protocol Relationships
+        ]]></artwork></figure>
+        </t></section>
+        <section title="Session Establishment and the Fistbump">
+        <t>BCP initiates connections with a fistbump, what TCP users might call a handshake:
+        <list style="numbers">
+            <t>Client initiates fistbump with a "YO"</t>
+            <t>Server responds to fistbump with a "YO, SWEET"</t>
+            <t>Client completes fistbump with a "SWEET"</t>
+            <t>Client continues providing data with "SWEET"</t>
+        </list>
+        Further connections between the client and server take place over further "SWEET" messages until either 
+        the client or server indicate they are finished with the transaction with a "PEACE OUT" message. 
+        Connections are kept in sequence by VIBIN and SWEET number.
+        </t></section>
+        <section title="Vibin and Sweets - Ordering Datagrams">
+        <t>Where TCP has Seq and Ack, BCP has Vibin and Sweets.  Crucial to the design of both protocols is 
+        the need to keep datagrams sequenced.  Every datagram sent is sequenced, so they can all be acknowledged.
+        Furthermore, in BCP the data in the datagram is also measured for byte length and accumulated on the
+        acknowledgment measure.   After the fistbump, both client and server will agree on sequence and 
+        acknowledgment measurements.  Simply after that:
+            <list style="empty">
+                <t>Upon acknowledgment of data receipt, ack is increased by the length of the data in the 
+                datagram</t>
+                <t>It is important to remember that vibin and sweet alternate value between client and host, 
+                so both may jump with the receipt of data.</t>
+                <t>Sweet is also incremented by one (twice) during the two-step procedure of PEACE OUT.</t>
+            </list>
+        </t></section>
+        <section title="Header Format">
+        <t>BCP sessions transmit by datagram.  BCP can be given data, create its headers, and in serialized form 
+        be attached to the end of an IP byte stream.  In comparison to TCP, several analogous header elements such as 
+        data offset, reserved, and padding are omitted as unrequired in object-oriented programming.  Below, in python
+        format, is a python version of such a datagram implementation:<figure><artwork>
+class BcpSesh():
+    def __init__(self, vibin, sweets, hanging, data = None)
+        self.vibin = vibin; #int (seq num)
+        self.sweets = sweets; #int (ack num)
+        self.hanging = hanging;  #Array of values: SWEET, 
+                                 #WUT, YO, PCE, NAH (control opts)
+        self.data = data; #The data to send, possibly None
+        self.cool = None;
+        if self.data:
+            self.cool = md5(self.data)
+        return self;
+                    
+        </artwork></figure>
+        <list style="empty">            
+        <t>int vibin:  This integer value keeps track of the sequence number.  It is initialized when the Bcp Transport 
+        protocol object is initialized as a random integer between 1-100000. </t>
+        
+        <t>int sweets: This field contains the value of the next sweet number the sender of the segment 
+        is expecting to receive.  Once a connection is set this is always sent.</t>
+        
+        
+        <t>Array hanging: These control options determine the functionality of the receiver.
+        (variable type) data: This field should be passed by the layer creating the BCP datagram.  This data field 
+        can contain any object with no restrictions.</t>
+        
+        
+        <t>int cool: This field is used as a checksum for the data, not the headers.  It is a sha-1 hashed value of the data 
+        if data exists, otherwise it is None.</t>
+        
+        </list>
+        </t></section>
+    </section>
+
+    <section title = "States">
+        <section title="State list">
+        <t>BCP has fewer states than TCP as multiplexing and flow control are omitted.  Below is a list of states:
+        <list style="empty">
+            <t>LISTEN = BCP protocol initiated, waiting for connection</t>
+            <t>YO-SENT = YO message has been sent, waiting for YO-SWEET as confirmation</t>
+            <t>YO-RECV = YO has been received, YO-SWEET has been sent, waiting for confirmation of synchronization</t>
+            <t>SET = Firstbump complete, data transfer underway</t>
+            <t>PCE-WAIT = Received message desiring close of connection, preparing to PEACE OUT</t>
+            <t>OUT = BCP terminated, no connections possible</t>
+        </list>
+        </t></section>
+        <section title="Hangin - control definitions">
+        <t><list>
+        <t>SWEET = Acknowledge data received.</t>
+        <t>WUT = Unknown circumstances have forced a reset</t>
+        <t>YO = Starting a new fistbump</t>
+        <t>PCE = PEACE OUT procedures initiated</t>
+        <t>NAH = NAH this packet was no good, initiate retransmit</t>
+        </list></t></section>
+        <section title="State and Control Options during Fistbump">
+        <t><figure><artwork><![CDATA[
+    Client                                                  Host
+
+1.  OUT                                                    LISTEN
+
+2.  YO-SENT --> <vibin=100><CTL=YO>                   --> YO-RECEIVED
+
+3.  SET  <-- <vibin =300><sweet=101><CTL=[YO,SWEET]>  <-- YO-RECEIVED
+
+4.  SET  --> <vibin =101><sweet =301><CTL=[SWEET]>       --> SET
+
+5.  SET  --> <vibin =101><sweet =301><CTL=[SWEET]><DATA> --> SET
+]]>
+        </artwork></figure>
+        The above is a simple demonstration of how the control options will change during the fistbump 
+        synchronization process.  Vibin and sweet change as they would in TCP.  Once each machine is synchronized, 
+        they enter the SET state where they begin the session.
+        </t></section>
+        <section title="WUT">
+        <t>A WUT message is generated upon the request of either the client or the host, causing the receiver to
+        immediately enter the "OUT" state where it can no longer receive or send unless reset by the controller. 
+        A WUT message will also be sent if a duplicate "YO" message is received during the fistbump, causing the vibin
+        synchronization to be off.  Further iterations of BCP should enable a full reset rather than simply turning
+        off the connection.
+        </t></section>
+        <section title="Cool and NAH">
+        <t>Just before the protocol forwards the data up a layer for sending, we will take a SHA-1 hash of the 
+        data in the datagram, if it exists, and save it as cool.  This value will be serialized and forwarded
+        along with the datagram.  The entire packet will be saved before sending, as well.  Upon receipt of a 
+        datagram with data in the packet, we will use SHA-1 to hash the data again.  If this value matches the data
+        in cool, we can forward it on to the right process.  If it does not, we request that the packet be 
+        retransmitted by sending a datagram with hanging set to "NAH".  Upon receipt of a "NAH" packet, the 
+        sender will immediately retransmit the previous packet exactly as it was.  This ensures data delivery
+        even over a noisy channel.
+        </t></section>
+        <section title="PEACING OUT">
+        <t>In order to close a connection for any reason, the client or the server may send a message with hangin set
+        to "PCE".  Upon receipt of a PCE message, the program should ask the session layer to finish, then it will
+        enter a PCE-WAIT state.  Once in PCE-WAIT, it will send another message confirming PEACE-OUT, incrementing 
+        the vibin number by one.  Upon receipt of the second PCE message, the program will immediately enter 
+        the OUT state, ceasing the connection.
+        </t></section>
+        <section title="Full State Diagram">
+        <t><figure><artwork><![CDATA[
+                client                                     server
+
+   fistbump()  |                                          |  gripIt()
+       <-      |-----------------                         |    ->
+     YO-SENT   |                  \ YO, vib = i           |   LISTEN
+               |                   ---------------------->|  YO_RECV
+               |                                          |
+               | vib j, SWEET i+1 ----------------------- |
+               |   YO-SWEET      /                        |
+   SET         |<--------------                           |
+               |   DATA k, vib j, SWEET i+1               |
+               |-------------------                       |
+               |                   \                      |   SET
+               |                    --------------------->|
+               |                                          |
+               |                   -----------------------|
+               |                  /                       |
+    SET        |<----------------  vib i+1, SWEET i+1+k   |
+               |                                          |
+               |                                          |
+               |   DATA c, vib a, SWEET b                 |
+*sample NAH*   |                                          |
+               |-------------------                       |
+               |                   \                      | *CALC HASH
+               |                    --------------------->|  != COOL*
+               |                                          |
+               |                   -----------------------|
+               |                  /                       |
+               |<----------------  NAH                    |
+               |                                          |
+               |   DATA c, vib a, SWEET b                 |
+               |-------------------                       |
+               |                   \                      |   
+               |                    --------------------->|
+               |                                          |
+               |                   -----------------------|
+               |                  /                       |
+               |<----------------  vib a, SWEET b+k       |
+               |                                          |
+  PCE          | ---------------------                    |
+               |                      \  vib h+1          |
+               |                    --------------------->| PCE_WAIT
+               |                                          |
+               |                   -----------------------|
+               |                  /                       |
+ PCE-WAIT      |<----------------  PCE, vib h+1           |
+               | ---------------------                    |
+               |                      \  vib h+2, PCE     |
+               |                    --------------------->| 
+               |                                          |
+               |                   -----------------------|
+               |                  /                       |
+   Out         |<----------------  PCE, vib h+2           |     OUT
+   ]]></artwork></figure>
+       </t></section>
+    </section>
+    <section title="Example Code">
+    <t><figure><artwork>
+    import random
+    class BcpSesh():
+        def __init__(self, vibin, sweets, hanging, data = None)
+            self.vibin = vibin; #int (seq num)
+            self.sweets = sweets; #int (ack num)
+            self.hanging = hanging;  #Array of values: SWEET, WUT, YO,
+                                    #PCE, NAH (control bits)
+            self.data = data; #The data to send, possibly None
+            self.cool = None
+            if self.data:
+                self.cool = sha1(self.data)
+            return self;
+            
+
+    class BcpTransport():
+        DEFINITION_IDENTIFIER = "lab1_BB_BcpTransport"
+        DEFINITION_VERSION = "1.0"
+        
+        def init:
+		#initialize variables here
+        def sendIt(self,payload):
+            #serialize payload
+            #save as last
+            #forward data to ip handler            
+        def getIt(self,payload):
+            #handle incoming packets
+
+	    #look for control options in the received payload "hangin"
+	    #send proper handshake packets or just send data
+            #            as necessary
+            
+        def wut():
+            #WUT
+        
+        def peace(self):
+            #PEACE OUT or SEND PEACE MESSAGE
+                
+        def fistbump(self):
+            #Set state to YO-SENT
+            #Initiate Fistbump
+            
+        def gripIt(self):
+            #turn on, set state to LISTEN
+    </artwork></figure>
+    </t>
+    </section>
+ </middle>
+ <back>
+ </back>
+</rfc>
