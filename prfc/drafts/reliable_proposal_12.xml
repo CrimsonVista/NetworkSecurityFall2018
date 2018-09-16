@@ -1,0 +1,148 @@
+<rfc>
+	<front>
+		<title abbrev="PRFC">The IETF's for the ATP "Abdullah Transport Protocol</title>
+		<author fullname="Abdullah Alghofaili"></author>
+		<date month="September" year="2018" />
+		<abstract>This memo presents a describtion of ATP protocol as an (RFC) document.</abstract>
+	</front>
+	<middle>
+		<section title="ATPPacket Class representation">
+<t>   class ATPPacket(PacketType):</t>
+
+<t>   DEFINITION_IDENTIFIER = "lab2b.student_Abdullah.ATPPacket"</t>
+
+<t>   DEFINITION_VERSION = "1.0"</t>
+
+<t>   FIELDS = [</t>
+
+<t>   ^^^ ("sqnc number", UNIT32),</t>
+
+<t>   ^^^ ("acknowledgment number", UNIT32),</t>
+
+<t>  ^^^ ("src port", UNIT16),</t>
+
+<t>   ^^^ ("dst port", UNIT16),</t>
+
+<t>   ^^^ ("checksum", UNIT16),</t>
+
+<t>   ^^^ ("control bits", UNIT8),</t>
+
+<t>   ^^^ ("data", BUFFER)</t>
+
+<t>   ^^^ ]</t>
+
+		</section>
+		<section title="The Header Attributes">
+			<t>
+   - sqnc number: 32 bits
+
+   A unique number that is assigned to the segment.  Allows the
+   connection to be reliable by controlling any losses or doublication
+   of the segment.
+
+   - acknowledgment number: 32 bits
+
+   A number that is assigned to the segment.  Used to make sure that a
+   segment has reached its destination.
+
+   - src port: 16 bits
+
+   The source port number.
+
+   - dst port: 16 bits
+
+   The distination port number.
+
+   - checksum: 16 bits
+   
+   The checksum field is to gurnttee the integrity of the header of the
+   segment its on.
+
+   - control bits: 8 bits
+
+   URG: Urgent Pointer field significant
+
+   ACK: Acknowledgment field significant
+
+   PSH: Push Function
+
+   RST: Reset the connection
+
+   SYN: Synchronize sequence numbers
+
+   FIN: No more data from sender
+			</t>
+		</section>
+		<section title="Refernce table for the attributes of class ATPPacket">
+			<texttable anchor="table_ex" title="Attributes Table">
+    <ttcol align='center'>ATTRIBUTE #</ttcol>
+    <ttcol align='center'>TYPE</ttcol>
+    <c>sqnc number</c>
+    <c>UNIT32</c>
+    <c>acknowledgment number</c>
+    <c>UNIT32</c>
+    <c>src port</c>
+    <c>UNIT16</c>
+	<c>dst port</c>
+    <c>UNIT16</c>
+	<c>checksum</c>
+    <c>UNIT16</c>
+	<c>control bits</c>
+    <c>UNIT16</c>
+	<c>data</c>
+    <c>BUFFER</c>
+			</texttable>
+		</section>
+		<section title="Establishing a connection">
+			<t>
+   To establish a connection between side A and side B, there will be a
+   need to send a SYN from the side that wants to initiate the
+   connection, so side A would send a SYN segment that contains the
+   sequence number of the segment.  After the SYN segment has been
+   received by side B, side B would replay back with acknowledgment
+   number of the sequence number of the first SYN segment and that it
+   will be expecting the next SYN segment from side A.  Afterward, side
+   A will send an ESTABLISHED segment which makes side B establish the
+   connection too, and mediately side A would send the data to side B
+   with another segment.  This is called "three-way handshake."
+			</t>   
+		</section>
+		<section title="Closing the connection">
+			<t>
+   To close a connection between to sides, side A and side B.  the side
+   initiating the closing of the connection would send a Close segment,
+   so side A would send CLOSE to side B, and side B would replay with a
+   FIN segment which will end the connection between the two sides
+   simultaneously.
+			</t>
+		</section>
+		<section title="Error Handling">
+			<t>
+   There are controls that are used with the protocol to prevent any
+   loss or duplication of segments.  A sequence number is one control
+   that is used to provide control over loss or duplication, as it will
+   indicate if the segments are indeed inline or if there are extra
+   unneeded segments that could hinder the data.  Also, a sequence
+   number is used to make sure both sides of a connection got the same
+   segment of data as an acknowledgment is sent back to the side that
+   initiates the connection to verify the segment it received which is
+   another control that can be used to guarantee integrity of the data.
+   Checksum value in the header is, also, another control that is used
+   to persierve the integrity of the header section of a segment, as its
+   calculated as a hash value and when the segment arrives to its
+   destination the header is calculated again and compared with its
+   value.
+
+			</t>
+		</section>
+	</middle>
+	<back>
+		<reference anchor="RFC793" target="https://tools.ietf.org/html/rfc793">
+			<front>
+				<title>TCP RFC793</title>
+				<author/>
+				<date/>
+			</front>
+</reference>
+	</back>
+</rfc>
