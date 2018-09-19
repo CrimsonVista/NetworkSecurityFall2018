@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is modified by Seth Nielson for creating P-RFC's
+    (Playground-RFC's). -->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml2rfc.ietf.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!-- One method to get references from the online citation libraries.
+    There has to be one entity for each item to be referenced. 
+    An alternate method (rfc include) is described in the references. -->
+
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs), 
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space 
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+
+
+
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+ <!-- category values: std, bcp, info, exp, and historic
+    ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+       or pre5378Trust200902, playgroundWinter201501
+    you can add the attributes updates="NNNN" and obsoletes="NNNN" 
+    they will automatically be output with "(if approved)" -->
+
+ <!-- ***** FRONT MATTER ***** -->
+
+ <front>
+   <!-- The abbreviated title is used in the page header - it is only necessary if the 
+        full title is longer than 39 characters -->
+
+   <title abbrev="PRFC's">Playground Request For Comments</title>
+
+   <!-- add 'role="editor"' below for the editors if appropriate -->
+
+   <!-- Another author who claims to be an editor -->
+
+   <author fullname="Prateek Bhatnagar" initials="P.B." role="editor"
+           surname="Bhatnagar">
+     <organization>JHU Network Security Fall 2018</organization>
+
+     <address>
+       <postal>
+         <street>JHU 101 Malone Hall/3400 North Charles St.</street>
+
+         <!-- Reorder these if your country does things differently -->
+
+         <city>Baltimore</city>
+
+         <region>MD</region>
+
+         <code>21218</code>
+
+         <country>USA</country>
+       </postal>
+
+       <phone>+1 410-497-7384</phone>
+
+       <email>pbhatna3@jhu.edu</email>
+
+       <!-- uri and facsimile elements may also be added -->
+     </address>
+   </author>
+
+   <date year="2018" />
+
+   <!-- If the month and year are both specified and are the current ones, xml2rfc will fill 
+        in the current day for you. If only the current year is specified, xml2rfc will fill 
+	 in the current day and month for you. If the year is not the current one, it is 
+	 necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the 
+	 purpose of calculating the expiry date).  With drafts it is normally sufficient to 
+	 specify just the year. -->
+
+   <!-- Meta-data Declarations -->
+
+   <area>General</area>
+
+   <workgroup>Playground Experiment Assignment</workgroup>
+
+   <!-- WG name at the upperleft corner of the doc,
+        IETF is fine for individual submissions.  
+	 If this element is not present, the default is "Network Working Group",
+        which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+   <keyword>PRFC</keyword>
+
+   <!-- Keywords will be incorporated into HTML output
+        files in a meta tag but they have no effect on text or nroff
+        output. If you submit your draft to the RFC Editor, the
+        keywords will be used for the search engine. -->
+
+   <abstract>
+     <t>The goal of this document is to define a transmission protocol that is similar to the TCP, but is simpler and bit easy to understand in order to study the working of TCP in greater detail as well as trying to understand the considerations to take into account while creating one's own protocol.</t>
+   </abstract>
+ </front>
+
+ <middle>
+   <section title="Purpose">
+     <t>This RFC details the VSTCP - Very Simple Transmission Control Protocol. The purpose of this RFC is to create a protocol that is similar to the TCP protocol but with some modifications made for simplicity and to adhere to assignment guidelines. These Guidelines state the need for Session establishment, Reliable Delivery that is in-order, reasonably error free and gaurentees delivery until a seesion tear down</t>
+     
+    
+   </section>
+
+	<section title="Packet Structure">
+<t>
+	from playground.network.packet import PacketType</t>
+<t>	from playground.network.packet.fieldtypes import UINT32,BUFFER</t>
+
+<t>	class MyPacket(PacketType):</t>
+<t>		DEFINITION_IDENTIFIER = "vstcp.MyPacket"</t>
+<t>		DEFINITION_VERSION = "1.0"</t>
+
+<t>		FIELDS = [</t>
+<t>			("flag", UINT32),</t>
+<t>			("sequence", UINT32),</t>
+<t>			("datalen", UINT32),</t>
+<t>			("data", BUFFER)</t>
+<t>			]</t>
+
+	<section title="Packet Breakdown">
+		<t><list style="symbols">
+    	<t>FLAG     - Can be set to 1,2,3,4,5</t>
+	<t><list style="numbers">
+		<t> Indicates that a new connection wants to be established  - needed to start a session</t>
+		<t> Acknoledgement that Previous packet was successfully recieved</t>
+		<t> Packets with this Flag value carry DATA</t>
+		<t> Packets that Indicate the termination of the session </t>
+		<t> Resend Request - Packets with this Flag means the last packet was not recieved and must be recent</t>
+	</list></t>
+		
+    	<t>sequence - used to maintain in order delivery of packets</t>
+    	<t>datalen  - length of the data buffer</t>
+	<t>data     - data buffer to store the data to be sent in the packet</t>
+    </list></t>
+	</section>
+	</section>
+   
+   <section title="Establishing a session">
+<t><list style="numbers">
+    <t>The first packet is sent by the client to the server the flag is set to 1 and a sequence number is appropriately generated, datalen and the data buffer maybe set appropriately</t>
+    <t>When the server recieves this packet it may choose to respond with either a positve or negative acknoledgement. A positive acknowledgement must be a packet with a flag set to 2 and the sequence number that is incremented by one to indicate that the server recieved the packet with the previous sequence number and that it expects a packet with the next sequence number. A negative acknowledgement would require the flag to be set to 5 and the preious sequence number </t>
+<t>At this point the handshake is complete and the session is established and data transmission may begin</t>
+</list></t>
+</section>    
+    
+    
+    <section title="In-order delivery guarentee">
+        
+    <t>In order delivery is addressed using a combination of sequence numbers and negative achnoledgement. Once a session is established the server will send back packet recieved acknowledgements by setting the flag to 2 and incrementing the sequence number in the packet to indicate which packet in the sequence the server expects to receive next. If the server recieves an unexpected, corrupt or incorrect packet it may send a negative acknowledgement in the form of a resend request by setting the flag to 5 and setting the sequence number to indicate which packet it expects to receive, which when recieved would require the other side to resend the previous packet.</t>
+
+    </section>
+    
+	<section title="Teardown">
+	<t>This action may be undertaken from either the server or client side by following this process:<list style="numbers">
+	<t>At any point after a session is established either side may send a packet with the appropriate expected sequence number by the other side along with the flag set to 4 to indicate that side would like to teardown the session</t>
+	<t>When any side recieves a teardown request packet as described above, it must then respond with an Acknowledgement recieved packet or Resend request packet and wait for another Recieved acknowledgement from the other side or a short backoff time period before closing the session.</t>
+	<t>After sending a teardown request packet and recieveing a receipt acknowledgement or a short backoff time period the session may then be safely terminated</t>
+	</list></t>
+
+	<t>
+	TIMEOUT - In the overall session a teardown maybe setup to automatically trigger if no packets are recieved for a set amount of time. This maybe done using a timer that resets everytime a packet is recieved
+	</t>
+<t>The timed backoff functionality allows for safe teardown from either side</t>
+	</section>
+	
+	
+   
+   
+ </middle>
+
+ <!--  *****BACK MATTER ***** -->
+
+ <back>
+ 
+
+ 
+ </back>
+</rfc>
