@@ -43,7 +43,7 @@
 
 
 
-<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_0" number="1">
+<rfc category="std" docName="rfc1" ipr="playgroundStd_v1_1" number="1">
  <!-- category values: std, bcp, info, exp, and historic
     ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
        or pre5378Trust200902, playgroundWinter201501
@@ -422,20 +422,13 @@
         header as well as the data sent to the receiver. The receiver verifies it and in case
         of mismatch in the checksum, simply drops the packet and waits for retransmission.
       </t>
-      <t>In scenarios where the channel may be noisy, the RIPP protocol includes an optional
-        forward error correcting code (ECC) which provides reliability at the expense of 
-        redundancy of sending data. The redundancy allows the receiver to detect a limited
-        number of errors that may occur anywhere in the message, and often to correct 
-        these errors without re-transmission.
-        FEC gives the receiver the ability to correct errors without needing a reverse 
-        channel to request re-transmission of data, but at the cost of a fixed,
-        higher forward channel bandwidth
-      </t>
       <t>In the scenario where duplicate data is received during retransmission, judged by
         SEQ number of the packet, the receiver simply discards them. In the case where
         phantom packets (unknown or radically different SEQ numbers) are received,
         the receiver simply discards them according to the RIPP protocol.
       </t>
+      <t>Maximum transmission size will be 1500 bytes.
+      </t> 
     </list>
     </t>
    </section>
@@ -461,12 +454,11 @@ class RIPPPacket(PacketType):
 
    FIELDS = [
 
-   ("Type", UINT8),
-   ("SeqNo", UINT32({Optional: True})),
-   ("AckNo", UINT32({Optional: True})),
-   ("CRC", UINT16),
-   ("FRC", UINT32({Optional: True})),
-   ("Data", BUFFER({Optional: True}))
+   ("Type", STRING), #values: "SYN", "ACK", "FIN"
+   ("SeqNo", UINT32,
+   ("AckNo", UINT32),
+   ("CRC", BUFFER),
+   ("Data", BUFFER)
 
    ]
  ]]>
@@ -476,13 +468,14 @@ class RIPPPacket(PacketType):
    </section>
 
    <section title="Computational Algorithms">
-     <t>The algorithm of choice is left to the user. The RIPP protocol
-      only specifies that the chosen algorithms used for CRC and FRC be 
-      simple, fast and should focus on speed rather than collision resistance
-      or other unnecessary properties of hash functions or error correcting codes.
-      The Forward Error Correcting code should also enable correction up to a
-      certain limit without adding too much bulk to the packet or the header.
-    </t>
+     <t>The Procedures for calculating the checksum are as follows:
+        <list style="numbers">
+		<t>Make sure all fields other than CRC are set.</t>
+		<t>Serialize the packet.</t>
+		<t>Apply sha256 algorithm to the packet from 2.</t>
+		<t>Take the packet from 1, attach byte result from 3 as CRC to packet.</t>
+	</list>
+     </t>
    </section>
 
    <section title="State Machines">
@@ -646,6 +639,11 @@ SETH NIELSON:
 
   Updated for Fall 2018
   2017-10-1
+
+BEN BROSTOFF:
+  Removed FRC
+  Added CRC algorithm
+  Added maximum transmission size
   -->
  </back>
 </rfc>
