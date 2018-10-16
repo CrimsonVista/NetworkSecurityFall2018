@@ -298,13 +298,13 @@
 
 1.  CLOSED                                                LISTEN
   
-2.  SYN-SENT    -->     (SEQ=100)(CTL=SYN)            --> SYN-RECEIVED
+2.  SYN-SENT    -->     (SeqNo=100)(Type="SYN")              --> SYN-RECEIVED
 
-3.  ESTABLISHED --> (SEQ=300)(ACK=101)(CTL=SYN,ACK)   <-- SYN-RECEIVED
+3.  ESTABLISHED <-- (SeqNo=300)(AckNo=101)(Type="SYN,ACK")   <-- SYN-RECEIVED
 
-4.  ESTABLISHED -->  (SEQ=101)(ACK=301)(CTL=ACK)      --> ESTABLISHED
+4.  ESTABLISHED -->  (SeqNo=101)(AckNo=301)(Type="ACK")      --> ESTABLISHED
 
-5.  ESTABLISHED --> (SEQ=101)(ACK=301)(CTL=ACK)(DATA) --> ESTABLISHED
+5.  ESTABLISHED --> (SeqNo=101)(AckNo=301)(Type="DATA")(DATA) --> ESTABLISHED
 
   Figure 1: Basic 3-Way Handshake for Connection Synchronization
       ]]>
@@ -315,82 +315,185 @@
 
     <t>The sequence number of the SYN packet can be based on any number generation system but 
        should be different for all the SYN packets sent out. No two connections should have
-       the same sequence number. Further, RIPP B does not need to ACK every SYN packet sent to it.
+       the same sequence number.
     </t>
    </section>
-
-   <section title="Session Termination">
-     <t>The RIPP protocol specific a set of exchanges required to gracefully shut down the 
-      connection between communicating entities. The "four-way handshake" process is used
-      for correctly terminating the connection. The first step for terminating the connection
-      is to send a FIN packet to the other client. There is no restriction on who can 
-      initiate the FIN request; any one of the communicating parties can send it to the 
-      other one. Once the other party receives the FIN request, it should send back a FIN-ACK
-      packet to acknowledge the RIP packet. Once the acknowledgement is sent out, the 
-      data packets left in the buffer are cleared out and an acknowledgment for them is 
-      awaited. When the sender receiver the ACK for all the packets, it sends out a FIN 
-      message and waits for a FIN-ACK from the other party. The connection can then 
-      close gracefully after the FIN-ACK packet is sent out.
-    </t>
-
-      <t>A simple version of the above "four-way handshake" to terminate the connection
-        is shown below in figure 2. 
-      </t>
-
-      <t>
-        <figure>
-          <artwork>
-            <![CDATA[
-    RIPP A                                                 RIPP B
-
-1.  ESTABLISHED                                          ESTABLISHED
-
-2.  (Close)
-               --> <SEQ=100><ACK=300><CTL=FIN,ACK>  --> 
-
-3.             <-- <SEQ=300><ACK=101><CTL=ACK>      <-- 
-                                                        Clear Buffer
-4.                                                       (Close)
-               <-- <SEQ=300><ACK=101><CTL=FIN,ACK>  <-- 
-
-5.             --> <SEQ=101><ACK=301><CTL=ACK>      --> 
-
-6.  CLOSED
-
-  Figure 2: Basic 4-Way Handshake for Connection Termination
-      ]]>
-        
-          </artwork>
-        </figure>
-    </t>
-   </section>
-
+   
    <section title="Data Transmission">
      <t>After the connection has been established, the sender and receiver can send packets
       of data to each other and continue communicating with each other. The way that 
       data flows between these two entities can be perceived as a stream oriented 
       transfer of data. The RIPP protocol sends chunks of bytes from the sender to the
-      receiver. The RIPP protocol has a maximum payload size of 2048 bytes. In case the
-      payload is greater than 2048, the RIPP protocol should break it down into chunks of 
-      2048 bytes. The data in the payload received by the RIPP protocol needs to be 
-      encapsulated into a Buffer.</t>
+      receiver. The RIPP protocol has a maximum payload size (Data) of 1500 bytes. In case the
+      payload is greater than 1500, the RIPP protocol should break it down into chunks of 
+      1500 bytes.</t>
 
-      <t>On the client side, the SEQ Number header field for the first data packet
-       sent is set equal to the SEQ number of the ACK packet sent during the RIPP handshake.
-       For subsequent data packets, the SEQ number is determined by adding
+      <t>On the client side, the SeqNo Number header field for the first data packet
+       sent is set equal to the SeqNo number of the (SYN-ACK) ACK packet sent during the RIPP handshake.
+       For subsequent data packets, the SeqNop number is determined by adding
        the sequence number of the previous packet with the length of the 
        previous packet. On the server side, the first data packet sent has
        the sequence number of the SYN-ACK packet sent during the handshake.
        And similarly, for the subsequent packets, the sequence number is
        determined by adding the sequence number and length of the previous packet.
- 
       </t>
+      
+      <t>All transmitted bytes MUST be acknowledged while both parties are in
+      the ESTABLISHED state. However, each individual packet does not have to be
+      acknowledged. Rather, when an ACK is sent, it indicates ALL of the bytes
+      that have been received thus far. Transmitting protocols MAY transmit more
+      than one packet at a time; the protocol need not wait for an ACK before
+      sending another packet. The packets currently awaiting ACK are known as
+      the transmission window. Packets in the transmission window are resent
+      until acknowledged by an appropriate ACK packet. When an Packet is received,
+      all packets within the transmission window with SeqNo + data length less
+      than the AckNo can be removed from the window.
+      </t>
+      
+      <t>In the example transmission below, multiple data transmissions are
+      sent on both sides before ACKs are sent back.</t>
+      
+      <t>
+      <figure>
+        <artwork><![CDATA[
+    RIPP A                                                         RIPP B
+
+1.  ESTABLISHED --> (SeqNo=101)(Type="DATA")(Data=1000 bytes)  --> ESTABLISHED
+
+2.  ESTABLISHED <-- (SeqNo=301)(Type="DATA")(Data=1500 bytes)  <-- ESTABLISHED
+
+3.  ESTABLISHED --> (SeqNo=1001)(Type="DATA")(Data=500 bytes)  --> ESTABLISHED
+
+4.  ESTABLISHED <-- (SeqNo=1801)(Type="DATA")(Date=100 bytes)  <-- ESTABLISHED
+
+5.  ESTABLISHED --> (SeqNo=1501)(Type="DATA")(Data=1500 bytes) --> ESTABLISHED
+
+6.  ESTABLISHED <-- (AckNo=3001)(Type="ACK")                   <-- ESTABLISHED
+
+7.  ESTABLISHED --> (AckNo=1901)(Type="ACK")                   --> ESTABLISHED
+
+  Figure 3: Data Transmission
+      ]]>
+        
+      </artwork>
+    </figure>
+    </t>
 
    </section>
 
+   <section title="Session Termination">
+     <t>The RIPP protocol specific a set of exchanges required to gracefully shut down the 
+      connection between communicating entities. A simple handshake process is used
+      for correctly terminating the connection. The first step for terminating the connection
+      is to send a FIN packet to the other client. There is no restriction on who can 
+      initiate the FIN request; any one of the communicating parties can send it to the 
+      other one. Once a FIN packet is sent, the protocol enters a closing state in which
+      no further data packets can be transmitted and no
+      further data packets received will be acknowledged or processed. However, it should
+      continue to re-transmit unacknowledged data packets and an unacknowledged FIN packet.
+      </t>
+      
+      <t>Once the other party receives the FIN request, it MUST process it in order. That is,
+      if there are any received data packets not yet processed (e.g., because they have
+      been received out of order), they must be processed first before processing the FIN.
+      This may mean waiting for the other party to retransmit.
+      </t>
+      
+      <t>Once the FIN packet is processed in-order, the RIPP protocol MUST transmit a final
+      ACK packet, acknowledging the FIN, and then enter a CLOSED state. In the CLOSED state,
+      it SHOULD not process any additional packets.
+    </t>
+    
+    <t>It is possible for both sides to transmit a FIN at approximately the same time.
+      If either side receives a FIN after transmitting a FIN, it need not wait for a 
+      ACK. The FIN indicates that the other side has already shut down and no further
+      ACKS are expected.
+      </t>
+
+      <t>One side sending to terminate the connection
+        is shown below in figure 2a. This figure includes
+        a retransmission of SeqNo 1501 (i.e., this packet
+        was lost or corrupted) to illustrate that the final
+        ACK is not sent until after all other data has been processed.
+      </t>
+      
+
+      <t>
+        <figure>
+          <artwork>
+            <![CDATA[
+    RIPP A                                                        RIPP B
+
+1.  CLOSING    --> <SeqNo=3001><Type="FIN">                   --> ESTABLISHED 
+
+2.  CLOSING    --> (SeqNo=1501)(Type="DATA")(Data=1500 bytes) --> ESTABLISHED
+
+3.  CLOSING    <-- (AckNo=3001)(Type="ACK")                   <-- ESTABLISHED
+
+3.  CLOSED     <-- <AckNo=3002><Type="ACK">                   <-- CLOSED
+
+  Figure 2a: One-sided shut down
+      ]]>
+        
+          </artwork>
+        </figure>
+    </t>
+    
+    <t>Both sides sending FINs is shown in figure 2b. Even
+    if there are un-ACK'd packets, the simulataneous shutdown
+    will cause them to be dropped and ignored.
+      </t>
+      
+
+      <t>
+        <figure>
+          <artwork>
+            <![CDATA[
+    RIPP A                                      RIPP B
+
+1.  ESTABLISHED                                 ESTABLISHED
+
+2.  CLOSING    --> <SeqNo=3001><Type="FIN">     --> 
+
+3.  CLOSED     <-- <SeqNo=1901><Type="FIN">     <-- CLOSED
+
+  Figure 2b: Simultaneous Shutdown
+      ]]>
+        
+          </artwork>
+        </figure>
+    </t>
+    
+    <t>It should be clear from this example that the RIPP protocol's
+    guarantee for reliable delivery is not enforced after the peer
+    transmits a FIN. The FIN indicates that the other side is not
+    processing data packets anymore, so it does no good to attempt
+    to reliably deliver them. Accordingly, application layer protocols
+    SHOULD communicate shutdown information to each other to ensure
+    a clean shutdown. FIN SHOULD NOT be relied upon for the graceful
+    shutdown; it is a best effort attempt to do so.
+    </t>
+   </section>
+
+   
+
    <section title="Error Handling">
-     <t>There are several different scenarios that can occur while transmitting 
-      data from one RIPP client to the other.
+     <t>There are many different classes of errors. The most difficult type
+     is that of unexpected packet types. If unexpected packets are ignored,
+     that may make the connection more resilient, but it also makes it more likely
+     that a restarted connection cannot be detected. For the purposes of this
+     protocol, we err on the side of detecting restarts. Thus, incorrect packet
+     types SHOULD cause a shutdown.
+     </t>
+     
+     <t>For example, during the handshake, the server expects a SYN packet. If 
+     any other packet type is received, the server SHOULD shutdown. Similarly,
+     if a DATA packet is expected, a SYN SHOULD also cause an abort.</t>
+     
+     <t>Data transmission errors, on the other hand, are recoverable using 
+     the acknowledgement and retransmisson discussed previously.</t>
+     
+     <t>Data transmission errors include:
       <list style="numbers">
         <t>Incorrect order of the packets</t>
         <t>Loss of packets</t>
@@ -464,6 +567,14 @@ class RIPPPacket(PacketType):
  ]]>
           </artwork>
         </figure>
+    </t>
+    
+    <t>The Type field technically can contain any combination of
+    "SYN", "ACK", "DATA", and "FIN". However, for the current protocol definition,
+    almost all legal values for Type are not combinations. Currently,
+    the only legal combination is "SYN" and "ACK" for the SYN-ACK 
+    packets described in the handshake section. Any other combinations
+    are currently illegal and SHOULD result in an abort.
     </t>
    </section>
 
