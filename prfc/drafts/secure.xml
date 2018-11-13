@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is modified by Seth Nielson for creating P-RFC's
+    (Playground-RFC's). -->
+<!-- This template is for creating an Internet Draft using xml2rfc,
+    which is available here: http://xml2rfc.ietf.org. -->
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+        <!-- One method to get references from the online citation libraries.
+            There has to be one entity for each item to be referenced.
+            An alternate method (rfc include) is described in the references. -->
+
+        <!ENTITY RFC2119 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+        <!ENTITY RFC2360 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2360.xml">
+        <!ENTITY RFC2629 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.2629.xml">
+        <!ENTITY RFC3552 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml">
+        <!ENTITY RFC5226 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5226.xml">
+        <!ENTITY RFC5246 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml">
+        <!ENTITY RFC8446 SYSTEM "http://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml">
+        ]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- used by XSLT processors -->
+<!-- For a complete list and description of processing instructions (PIs),
+    please see http://xml2rfc.ietf.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most I-Ds might want to use.
+    (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+    (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+
+
+<rfc category="std" docName="sith_prfc" ipr="playgroundStd_v1_0" number="2">
+    <!-- category values: std, bcp, info, exp, and historic
+       ipr values: trust200902, noModificationTrust200902, noDerivativesTrust200902,
+          or pre5378Trust200902, playgroundWinter201501
+       you can add the attributes updates="NNNN" and obsoletes="NNNN"
+       they will automatically be output with "(if approved)" -->
+
+    <!-- ***** FRONT MATTER ***** -->
+
+    <front>
+        <!-- The abbreviated title is used in the page header - it is only necessary if the
+             full title is longer than 39 characters -->
+
+        <title abbrev="SITH PRFC">The Secure Internetwork Transport Handshake (SITH) Protocol over RIPP</title>
+
+        <!-- add 'role="editor"' below for the editors if appropriate -->
+
+        <!-- Another author who claims to be an editor -->
+
+        <author fullname="Kandarp Khandwala" initials="K.K." role="editor"
+                surname="Khandwala">
+            <organization>JHU Network Security Fall 2018</organization>
+
+            <address>
+                <postal>
+                    <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+                    <!-- Reorder these if your country does things differently -->
+
+                    <city>Baltimore</city>
+
+                    <region>MD</region>
+
+                    <code>21218</code>
+
+                    <country>USA</country>
+                </postal>
+
+                <phone>+1 443-763-9251</phone>
+
+                <email>kck@jhu.edu</email>
+
+                <!-- uri and facsimile elements may also be added -->
+            </address>
+        </author>
+        <author fullname="Richard Bradt" initials="R.B." role="editor"
+                surname="Bradt">
+            <organization>JHU Network Security Fall 2018</organization>
+
+            <address>
+                <postal>
+                    <street>JHU 160 Malone Hall/3400 North Charles St.</street>
+
+                    <!-- Reorder these if your country does things differently -->
+
+                    <city>Baltimore</city>
+
+                    <region>MD</region>
+
+                    <code>21218</code>
+
+                    <country>USA</country>
+                </postal>
+
+                <phone>+1 205-789-9019</phone>
+
+                <email>rbradt1@jhu.edu</email>
+
+                <!-- uri and facsimile elements may also be added -->
+            </address>
+        </author>
+
+        <date year="2018"/>
+
+        <!-- If the month and year are both specified and are the current ones, xml2rfc will fill
+             in the current day for you. If only the current year is specified, xml2rfc will fill
+          in the current day and month for you. If the year is not the current one, it is
+          necessary to specify at least a month (xml2rfc assumes day="1" if not specified for the
+          purpose of calculating the expiry date).  With drafts it is normally sufficient to
+          specify just the year. -->
+
+        <!-- Meta-data Declarations -->
+
+        <area>General</area>
+
+        <workgroup>Playground Experiment Director</workgroup>
+
+        <!-- WG name at the upperleft corner of the doc,
+             IETF is fine for individual submissions.
+          If this element is not present, the default is "Network Working Group",
+             which is used by the RFC Editor as a nod to the history of the IETF. -->
+
+        <keyword>PRFC</keyword>
+
+        <!-- Keywords will be incorporated into HTML output
+             files in a meta tag but they have no effect on text or nroff
+             output. If you submit your draft to the RFC Editor, the
+             keywords will be used for the search engine. -->
+
+        <abstract>
+            <t>This PRFC (Playground RFC) defines S.I.T.H. (Secure Internetwork Transport Handshake),
+                a protocol that provides confidentiality, message integrity, and mutual authentication
+                over the Reliable Internetwork Playground Protocol (R.I.P.P.)
+            </t>
+
+            <t>This document takes inspiration from RFCs 5246 and 8446 to create a simpler,
+                faster and barebones implementation of a secure layer over the RIPP protocol.
+            </t>
+        </abstract>
+    </front>
+
+    <middle>
+        <section title="Introduction">
+            <t>RFC's (Request for Comments) are a publication of the Internet
+                Engineering Task Force (IETF). RFC's have many purposes including
+                the publication of standards, general information, and best
+                practices.
+            </t>
+
+
+            <section title="Requirements Language">
+                <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+                    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+                    document are to be interpreted as described in <xref
+                            target="RFC2119">RFC 2119</xref>.
+                </t>
+            </section>
+        </section>
+
+
+        <section title="Purpose/Technical Background">
+            <t>The primary goal of SITH is to provide a secure channel between two
+                communicating peers in the Playground network. The only requirement
+                from the underlying RIPP transport is a reliable, in-order data stream.
+                Specifically, the secure channel should provide the following properties:
+
+                <list style="numbers">
+                    <t>Authentication: Both the server and the client need to be
+                        mutually authenticated. For the key establishment phase,
+                        Elliptic Curve Diffie-Hellman Ephemeral (ECDHE) using the
+                        specific x25519 curve is to be used.
+                        Authentication can happen via the Elliptic Curve Digital
+                        Signature Algorithm (ECDSA). Separating the algorithms for
+                        key establishment and authentication ensures that complete
+                        forward secrecy is maintained while communicating.
+                        A DH handshake with an elliptic curve DSA certificate and
+                        elliptic curve Diffie-Hellman key agreement can be faster
+                        than a one-operation RSA handshake.
+                    </t>
+
+                    <t>Confidentiality: Data sent over the channel after establishment is
+                        only visible to the endpoints. Symmetric cryptography (AEAD) is
+                        used for data encryption.
+                    </t>
+
+                    <t>Integrity: Data sent over the channel after establishment cannot
+                        be modified by attackers without detection.
+                    </t>
+                </list>
+            </t>
+        </section>
+
+        <section title="Protocol Specifications">
+            <section title="Mutual Authentication - Setup">
+                <t>The ephemeral Diffie-Hellman handshake in the SITH protocol
+                    uses two different mechanisms: one for establishing a shared
+                    secret and the other for authentication.The communicating
+                    parties with different secrets exchange messages
+                    to obtain the shared secret.
+                </t>
+
+                <t>The SITH handshake can be visualized as below:</t>
+                <t>
+                    <figure>
+                        <artwork><![CDATA[
+      Client                                         Server
+  +--------------+
+  |Generate Keys |
+  +--------------+
+  +--------------+
+  | ClientHello  |
+  |--------------|+--------------------------->
+  |-ClientRandom |                              +--------------+
+  |-Public Value |                              |Generate Keys |
+  |-Certificates |                              +--------------+
+  +--------------+                              +--------------+
+                                                | ServerHello  |
+                  <----------------------------+|--------------|
+                                                |-ServerRandom |
+                                                |-Public Value |
+                                                |-Certificates |
+                                                +--------------+
+  +--------------+                              +--------------+
+  |Key Derivation|                              |Key Derivation|
+  +--------------+                              +--------------+
+  +--------------+
+  |Client Finish |
+  |--------------|+--------------------------->
+  |-Signature    |                              +--------------+
+  +--------------+                              |Server Finish |
+                  <----------------------------+|--------------|
+                                                |-Signature    |
+                                                +--------------+
+                    Figure 1. SITH Handshake
+]]>
+                        </artwork>
+                    </figure>
+                </t>
+                <section title="Client Key Exchange Generation">
+                    <t>The client begins by calculating a private/public keypair for key exchange.
+                        An elliptical curve method, using the x25519 curve is chosen to generate
+                        the 32 byte private key. The public key is derived from the corresponding
+                        x25519 curve.
+                    </t>
+                </section>
+                <section title="Message 1: Client Hello">
+                    <t>When a client first connects to a server, it is REQUIRED to send the
+                        ClientHello as its first SITH message. This must include the
+                        32 byte "random", the "public value" of the selected
+                        Elliptic Curve ((EC)DHE x25519) along with the appropriate
+                        certificate and relevant CA (explained in the trust model section)
+                        which will be validated by the server. Since the SITH protocol
+                        only supports one group, all the above fields are mandatory
+                        while initiating the ClientHello message.
+                    </t>
+                    <t>Below is the SITH packet in Playground format. The HELLO packet will
+                        include Type, Random, PublicValue, and Certificates.
+                    </t>
+                    <t>
+                        <figure>
+                            <artwork><![CDATA[
+    class SITHPacket(PacketType):
+
+        DEFINITION_IDENTIFIER = "SITH.kandarp.packet"
+        DEFINITION_VERSION = "1.0"
+
+        FIELDS = [
+
+          ("Type", STRING), // HELLO, FINISH, DATA, CLOSE
+          ("Random", BUFFER({Optional: True})),
+          ("PublicValue", BUFFER({Optional: True})),
+          ("Certificate", LIST(BUFFER)({Optional: True})),
+          ("Signature", BUFFER({Optional: True})),
+          ("Ciphertext", BUFFER({Optional: True}))
+        ]
+
+        Figure 2. SITH Packet in Playground Format
+              ]]>
+                            </artwork>
+                        </figure>
+                    </t>
+                </section>
+                <section title="Server Key Exchange Generation">
+                    <t>The server also starts by calculating a private/public keypair for key exchange.
+                        An elliptical curve method, using the x25519 curve is chosen to generate
+                        the 32 byte private key. The public key is derived from the corresponding
+                        x25519 curve similar to how a client started the connection.
+                    </t>
+                </section>
+                <section title="Message 2: Server Hello">
+                    <t>The server will send this message in response to a ClientHello
+                        message. This must include the 32 byte "random" and the
+                        "public value" of the selected Elliptic Curve ((EC)DHE).
+                    </t>
+                    <t>Refer to Figure 2 for the SITH Packet format. The HELLO Packet will
+                        include Type, Random, PublicValue, and Certificates.
+                    </t>
+                </section>
+
+                <section title="Server Shared Key Calculation">
+                    <t>The server now has the information to calculate the shared secret.
+                        <list style="numbers">
+                            <t>Client Public Key (from Client Hello)</t>
+                            <t>Server Private Key (from Server Key Exchange Generation)</t>
+                            <t>Combine 1 and 2 to generate the shared secret</t>
+                            <t>SHA256 hash of ClientHello and ServerHello</t>
+                        </list>
+                        Now we want to derive our server_iv, server_read and
+                        server_write from the above information.
+
+                        AES GCM takes in 12 bytes of IV. Since the recommended mode
+                        in SITH is AES GCM with 128 bit block size, the key size is 128
+                        bits. Therefore, we generate them using the below formula -
+
+                        <list>
+                            <t>server_iv = SHA256(3 and 4 from above)[96:192]</t>
+                            <t>server_write = SHA256(SHA256(3 and 4 from above))[:128]</t>
+                            <t>server_read = SHA256(SHA256(3 and 4 from above))[128:]</t>
+                        </list>
+
+                        The client_read is the same as server_write and the
+                        server_read is the same as client_write.
+                    </t>
+                </section>
+
+                <section title="Client Shared Key Calculation">
+                    <t>The client now has the information to calculate the shared secret.
+                        <list style="numbers">
+                            <t>Server Public Key (from Server Hello)</t>
+                            <t>Client Private Key (from Client Key Exchange Generation)</t>
+                            <t>Combine 1 and 2 to generate the shared secret</t>
+                            <t>SHA256 hash of ClientHello and ServerHello</t>
+                        </list>
+                        Now we want to derive our client_iv, client_read and client write
+                        from the above information.
+
+                        AES GCM takes in 12 bytes of IV. Since the recommended mode
+                        in SITH is AES GCM with 128 bit block size, the key size is 128
+                        bits. Therefore, we generate them using the below formula -
+
+                        <list>
+                            <t>client_iv = SHA256(3 and 4 from above)[:96]</t>
+                            <t>client_read = SHA256(SHA256(3 and 4 from above))[:128]</t>
+                            <t>client_write = SHA256(SHA256(3 and 4 from above))[128:]</t>
+                        </list>
+
+                        The client_read is the same as server_write and the
+                        server_read is the same as client_write.
+                    </t>
+                </section>
+
+                <section title="Message 3: Server Certificate and Verification">
+                    <t>The server sends the appropriate certificate and relevant CA
+                        cert (explained in the trust model section) which will be
+                        validated by the client.
+                        To prove that the server owns the server certificate,
+                        it signs a hash of the handshake messages using the
+                        certificate's private key. The signature can be proven
+                        valid by the client by using the certificate's public key.
+                    </t>
+                    <t>Refer to Figure 2 for the SITH Packet format. The Finish packet
+                        will include Type=FINISH, and Signature.
+                    </t>
+                </section>
+
+                <section title="Message 4: Client Verification">
+                    <t>To prove that the client owns the client certificate,
+                        it signs a hash of the handshake messages using the
+                        certificate's private key. The signature can be proven
+                        valid by the server by using the certificate's public key.
+                    </t>
+                    <t>Refer to Figure 2 for the SITH Packet format. The Finish packet
+                        will include Type=FINISH, and Signature.
+                    </t>
+                </section>
+
+                <section title="Data Transfer">
+                    <t>At this stage, the SITH handshake is concluded and both the
+                        client and server can start transmitting and receiving bulk
+                        data from each other. Each message is protected using the
+                        Authenticated Encryption with Additional Data (AEAD) with the
+                        default algorithm as AES_128_GCM. This ensures that the data
+                        is simultaneously encrypted and integrity protected.
+                    </t>
+                    <t>Refer to Figure 2 for the SITH Packet format. The Data packet
+                        will include Type=DATA, and Ciphertext.
+                    </t>
+                </section>
+            </section>
+
+            <section title="Trust Model">
+                <t>
+                    <list style="numbers">
+                        <t>The first, or topmost, link in the chain of trust is the
+                            Certification Authority (CA). CAs are deemed to be trusted
+                            organizations.
+                        </t>
+                        <t>The very existence of the CA marks the first step in the
+                            establishment of the line of trust.
+                        </t>
+                        <t>The root CA certificate in the chain of trust will have the subject
+                            name or address of the known CA as well as a corresponding signature.
+                            The root CA certificate is the only certificate in the chain that can
+                            be self-signed. This signature must be verified with attached CA
+                            public key.
+                        </t>
+                        <t>The Playground entities who desire a certificate send various
+                            information such as designated name, business registration number or
+                            other serial number which is then verified by the CA.
+                        </t>
+                        <t>As seen before, the user then generates the ECDHE key pair and uses
+                            the private key to sign a Certificate Signing Request (CSR) which
+                            will contain the public key of the generated public-private pair
+                            among other information.
+                        </t>
+                        <t>The user will also add a suggested address pre-fix in their
+                            Playground CSR. If the CSR is approved, this range of addresses will
+                            be assigned to the user allowing that user to act as the intermediary
+                            CA to sign any certificates for subjects in that address range.
+                        </t>
+                        <t>The CA finally signs the user's certificate using the private key of
+                            the public-private key pair whose public key is contained in the CA's
+                            root certificate.
+                        </t>
+                        <t>Certificates will be generated using the X.509 format, and only CAs
+                            may sign certificates. Signature verification will occur through the
+                            entire certificate chain. A signature must be verified with the
+                            public key of the previous CA certificate in the chain, and only the
+                            root certificate may be self-signed.
+                        </t>
+                    </list>
+                </t>
+                <t>
+                    <figure>
+                        <artwork><![CDATA[
+  +-----------------------------++--------------------------+
+  |Certificate Signature Request||     Certificate X.509    |
+  |-----------------------------||--------------------------|
+  | +Identifying Information    ||+Version Number           |
+  |  -Distinguished Name (DN)   ||+Serial Number            |
+  |  -Organization              ||+Signature Algorithm ID   |
+  |  -Address Pre-fix           ||+Issuer Name              |
+  |                             ||+Validity Period          |
+  | +Applicant's Public Key     ||+Subject Name             |
+  |                             ||+Subject Public Key Info  |
+  | +Signed with Applicant's    || -Public Key Algorithm    |
+  |  Private Key                || -Subject Public Key      |
+  +-----------------------------+|+Issuer Unique Identifier |
+                                 |+Subject Unique Identifier|
+                                 +--------------------------+
+
+   +-----------+   +-----------+   +-----------+
+   |    CSR    |   |    CA     |   | CA Cert   |
+   |-----------|+->|-----------|+->|-----------|
+   |+ID        |   | +Verifies |   |+Subject   |<-+
+   |+Pre-fix   |   |  User ID  |   |+Public Key|  |
+   |+Public Key|   |           |   |+Signature |  |
+   |+Signature |   |           |   |           |  | Verify
+   +-----------+   +-----------+   +-----------+  | Signature
+                                   | User Cert |  | w/ CA Cert
+                                   |-----------|  |
+                                   |+Subject   |  |
+                                   |+Public Key|  |
+                                   |+Signature |+-+
+                                   +-----------+
+
+                   Figure 3. Certificate Example
+          ]]>
+                        </artwork>
+                    </figure>
+                </t>
+            </section>
+
+            <section title="Certificate Verification and Revocations">
+                <t>As stated above, each certificate in the chain of trust must be
+                    verified. For the chain of trust to be valid, the following conditions
+                    must be met:
+                </t>
+                <t>
+                    <list style="numbers">
+                        <t>The root CA certificate is from a known, trusted CA. The root
+                            certificate is the only self-signed certificate in the chain of
+                            trust.
+                        </t>
+                        <t>Each certificate must not have an expired validity period.</t>
+                        <t>Each signature is verified with its corresponding public key through
+                            out the chain.
+                        </t>
+                        <t>Each issuer/subject relationship is verified throughout the chain.</t>
+                        <t>Any certificate in the chain must not be in the Certificate
+                            Revocation List (CRL).
+                        </t>
+                    </list>
+                </t>
+                <t>If any certificate in the chain of trust breaks any of these conditions,
+                    that certificate is considered invalid and must be revoked by adding it
+                    to the CRL. Certificates in the CRL is stored by its corresponding
+                    serial number and is stored indefinitely.
+                </t>
+            </section>
+
+            <section title="Confidential and Integrous Communications">
+                <t>Each message is protected using the Authenticated Encryption with
+                    Additional Data (AEAD) with the default algorithm as AES_128_GCM. This
+                    ensures that the data is simultaneously encrypted and integrity
+                    protected. The calculated share key is used with a new initialization
+                    vector (IV), or nonce, which is generated for every message encryption.
+                    Any message that cannot be authenticated will be dropped.
+                </t>
+                <t>Below is the AEAD Function Model:</t>
+                <t>
+                    <figure>
+                        <artwork><![CDATA[
+AEADEncrypted = AEAD_Encrypt(shared_key, nonce, plaintext, \
+        additional_data)
+
+additional_data = None
+
+            Figure 4. AEAD Function Model
+           ]]>
+                        </artwork>
+                    </figure>
+                </t>
+            </section>
+
+            <section title="Algorithm Specifications">
+                <t>
+                    <list style="numbers">
+                        <t>Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using x25519 curve
+                            for key exchange.
+                        </t>
+                        <t>Elliptic Curve Digital Signature Algorithm (ECDSA) with SHA-256 for
+                            signatures.
+                        </t>
+                        <t>Advanced Encryption Standard (AES) with Galois/Counter Mode (GCM)
+                            with block size of 128 bit as a cipher for encryption and integrity.
+                        </t>
+                    </list>
+                </t>
+            </section>
+
+            <section title="Shutdown">
+                <t>Any party who wants to close the connection or is encountering an error
+                    should send a close message and indicate the closure information or
+                    error. Error alerts indicate abortive closure of the connection. Upon
+                    receiving an error alert, the SITH implementation SHOULD indicate an
+                    error to the application and MUST NOT allow any further data to be sent
+                    or received on the connection.
+                </t>
+
+                <t>Refer to Figure 2 for the SITH packet format. The CLOSE packet will
+                    require the Type field and the error message can use the ciphertext
+                    field.
+                </t>
+            </section>
+        </section>
+    </middle>
+
+    <!--  *****BACK MATTER ***** -->
+
+    <back>
+        <!-- References split into informative and normative -->
+
+        <!-- There are 2 ways to insert reference entries from the citation libraries:
+         1. define an ENTITY at the top, and use "ampersand character"RFC2629; here (as shown)
+         2. simply use a PI "less than character"?rfc include="reference.RFC.2119.xml"?> here
+            (for I-Ds: include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+         Both are cited textually in the same manner: by using xref elements.
+         If you use the PI option, xml2rfc will, by default, try to find included files in the same
+         directory as the including file. You can also define the XML_LIBRARY environment variable
+         with a value containing a set of directories to search.  These can be either in the local
+         filing system or remote ones accessed by http (http://domain/dir/... ).-->
+
+        <references title="Normative References">
+            <!--?rfc include="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
+            &RFC2119;
+
+            &RFC2360;
+
+            &RFC5246;
+
+            &RFC8446;
+        </references>
+    </back>
+</rfc>
