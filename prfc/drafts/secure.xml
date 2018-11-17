@@ -185,9 +185,9 @@
                         Elliptic Curve Diffie-Hellman Ephemeral (ECDHE) using the
                         specific x25519 curve is to be used.
                         Authentication can happen via the Elliptic Curve Digital
-                        Signature Algorithm (ECDSA). Separating the algorithms for
-                        key establishment and authentication ensures that complete
-                        forward secrecy is maintained while communicating.
+                        Signature Algorithm (ECDSA) using the specific secp256k1 curve.
+                        Separating the algorithms for key establishment and authentication
+                        ensures that complete forward secrecy is maintained while communicating.
                         A DH handshake with an elliptic curve DSA certificate and
                         elliptic curve Diffie-Hellman key agreement can be faster
                         than a one-operation RSA handshake.
@@ -541,11 +541,11 @@ additional_data = None
             <section title="Algorithm Specifications">
                 <t>
                     <list style="numbers">
-                        <t>Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using x25519 curve
+                        <t>Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using the x25519 curve
                             for key exchange.
                         </t>
-                        <t>Elliptic Curve Digital Signature Algorithm (ECDSA) with SHA-256 for
-                            signatures.
+                        <t>Elliptic Curve Digital Signature Algorithm (ECDSA) using the secp256k1
+                        	curve and SHA-256 hash for signatures.
                         </t>
                         <t>Advanced Encryption Standard (AES) with Galois/Counter Mode (GCM)
                             with block size of 128 bit as a cipher for encryption and integrity.
