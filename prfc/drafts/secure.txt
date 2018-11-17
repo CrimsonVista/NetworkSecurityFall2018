@@ -68,7 +68,7 @@ Table of Contents
        3.1.2.  Message 1: Client Hello  . . . . . . . . . . . . . . .  4
        3.1.3.  Server Key Exchange Generation . . . . . . . . . . . .  5
        3.1.4.  Message 2: Server Hello  . . . . . . . . . . . . . . .  5
-       3.1.5.  Server Shared Key Calculation  . . . . . . . . . . . .  5
+       3.1.5.  Server Shared Key Calculation  . . . . . . . . . . . .  6
        3.1.6.  Client Shared Key Calculation  . . . . . . . . . . . .  6
        3.1.7.  Message 3: Server Certificate and Verification . . . .  7
        3.1.8.  Message 4: Client Verification . . . . . . . . . . . .  7
@@ -139,12 +139,13 @@ RFC 2                           SITH PRFC                  November 2018
        mutually authenticated.  For the key establishment phase,
        Elliptic Curve Diffie-Hellman Ephemeral (ECDHE) using the
        specific x25519 curve is to be used.  Authentication can happen
-       via the Elliptic Curve Digital Signature Algorithm (ECDSA).
-       Separating the algorithms for key establishment and
-       authentication ensures that complete forward secrecy is
-       maintained while communicating.  A DH handshake with an elliptic
-       curve DSA certificate and elliptic curve Diffie-Hellman key
-       agreement can be faster than a one-operation RSA handshake.
+       via the Elliptic Curve Digital Signature Algorithm (ECDSA) using
+       the specific secp256k1 curve.  Separating the algorithms for key
+       establishment and authentication ensures that complete forward
+       secrecy is maintained while communicating.  A DH handshake with
+       an elliptic curve DSA certificate and elliptic curve Diffie-
+       Hellman key agreement can be faster than a one-operation RSA
+       handshake.
 
    2.  Confidentiality: Data sent over the channel after establishment
        is only visible to the endpoints.  Symmetric cryptography (AEAD)
@@ -160,7 +161,6 @@ RFC 2                           SITH PRFC                  November 2018
 
    The ephemeral Diffie-Hellman handshake in the SITH protocol uses two
    different mechanisms: one for establishing a shared secret and the
-   other for authentication.The communicating parties with different
 
 
 
@@ -169,6 +169,7 @@ Khandwala & Bradt            Standards Track                    [Page 3]
 RFC 2                           SITH PRFC                  November 2018
 
 
+   other for authentication.The communicating parties with different
    secrets exchange messages to obtain the shared secret.
 
    The SITH handshake can be visualized as below:
@@ -216,7 +217,6 @@ RFC 2                           SITH PRFC                  November 2018
 
    When a client first connects to a server, it is REQUIRED to send the
    ClientHello as its first SITH message.  This must include the 32 byte
-   "random", the "public value" of the selected Elliptic Curve ((EC)DHE
 
 
 
@@ -225,6 +225,7 @@ Khandwala & Bradt            Standards Track                    [Page 4]
 RFC 2                           SITH PRFC                  November 2018
 
 
+   "random", the "public value" of the selected Elliptic Curve ((EC)DHE
    x25519) along with the appropriate certificate and relevant CA
    (explained in the trust model section) which will be validated by the
    server.  Since the SITH protocol only supports one group, all the
@@ -269,9 +270,8 @@ RFC 2                           SITH PRFC                  November 2018
    Refer to Figure 2 for the SITH Packet format.  The HELLO Packet will
    include Type, Random, PublicValue, and Certificates.
 
-3.1.5.  Server Shared Key Calculation
 
-   The server now has the information to calculate the shared secret.
+
 
 
 
@@ -280,6 +280,10 @@ Khandwala & Bradt            Standards Track                    [Page 5]
 
 RFC 2                           SITH PRFC                  November 2018
 
+
+3.1.5.  Server Shared Key Calculation
+
+   The server now has the information to calculate the shared secret.
 
    1.  Client Public Key (from Client Hello)
 
@@ -324,11 +328,7 @@ RFC 2                           SITH PRFC                  November 2018
 
       client_iv = SHA256(3 and 4 from above)[:96]
 
-      client_read = SHA256(SHA256(3 and 4 from above))[:128]
 
-      client_write = SHA256(SHA256(3 and 4 from above))[128:]
-
-   The client_read is the same as server_write and the server_read is
 
 
 
@@ -337,6 +337,11 @@ Khandwala & Bradt            Standards Track                    [Page 6]
 RFC 2                           SITH PRFC                  November 2018
 
 
+      client_read = SHA256(SHA256(3 and 4 from above))[:128]
+
+      client_write = SHA256(SHA256(3 and 4 from above))[128:]
+
+   The client_read is the same as server_write and the server_read is
    the same as client_write.
 
 3.1.7.  Message 3: Server Certificate and Verification
@@ -379,12 +384,7 @@ RFC 2                           SITH PRFC                  November 2018
        Certification Authority (CA).  CAs are deemed to be trusted
        organizations.
 
-   2.  The very existence of the CA marks the first step in the
-       establishment of the line of trust.
 
-   3.  The root CA certificate in the chain of trust will have the
-       subject name or address of the known CA as well as a
-       corresponding signature.  The root CA certificate is the only
 
 
 
@@ -393,6 +393,12 @@ Khandwala & Bradt            Standards Track                    [Page 7]
 RFC 2                           SITH PRFC                  November 2018
 
 
+   2.  The very existence of the CA marks the first step in the
+       establishment of the line of trust.
+
+   3.  The root CA certificate in the chain of trust will have the
+       subject name or address of the known CA as well as a
+       corresponding signature.  The root CA certificate is the only
        certificate in the chain that can be self-signed.  This signature
        must be verified with attached CA public key.
 
@@ -420,12 +426,6 @@ RFC 2                           SITH PRFC                  November 2018
        through the entire certificate chain.  A signature must be
        verified with the public key of the previous CA certificate in
        the chain, and only the root certificate may be self-signed.
-
-
-
-
-
-
 
 
 
@@ -539,11 +539,11 @@ RFC 2                           SITH PRFC                  November 2018
 
 3.5.  Algorithm Specifications
 
-   1.  Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using x25519
-       curve for key exchange.
+   1.  Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using the
+       x25519 curve for key exchange.
 
-   2.  Elliptic Curve Digital Signature Algorithm (ECDSA) with SHA-256
-       for signatures.
+   2.  Elliptic Curve Digital Signature Algorithm (ECDSA) using the
+       secp256k1 curve and SHA-256 hash for signatures.
 
    3.  Advanced Encryption Standard (AES) with Galois/Counter Mode (GCM)
        with block size of 128 bit as a cipher for encryption and
