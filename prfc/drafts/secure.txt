@@ -1,0 +1,784 @@
+
+
+
+Network Working Group                                  K. Khandwala, Ed.
+Request for Comments: 2                                    R. Bradt, Ed.
+Category: Standards Track                 JHU Network Security Fall 2018
+                                                           November 2018
+
+
+ The Secure Internetwork Transport Handshake (SITH) Protocol over RIPP
+
+Abstract
+
+   This PRFC (Playground RFC) defines S.I.T.H. (Secure Internetwork
+   Transport Handshake), a protocol that provides confidentiality,
+   message integrity, and mutual authentication over the Reliable
+   Internetwork Playground Protocol (R.I.P.P.)
+
+   This document takes inspiration from RFCs 5246 and 8446 to create a
+   simpler, faster and barebones implementation of a secure layer over
+   the RIPP protocol.
+
+Status of this Memo
+
+   This document specifies a Playgrounds standards track protocol for
+   the Playground Experiment, and requests discussion and suggestions
+   for improvements.  Distribution of this memo is unlimited.
+
+Copyright Notice
+
+   Copyright (c) 2018 SETH JAMES NIELSON.  All rights reserved.
+
+   This document is used solely for educational purposes.  Any citations
+   within this document are also for educational purposes and also for
+   technical reference.  If any of these cited elements are protected
+   under copyright, their inclusion here falls under Fair Use
+   provisions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 1]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+Table of Contents
+
+   1.  Introduction . . . . . . . . . . . . . . . . . . . . . . . . .  3
+     1.1.  Requirements Language  . . . . . . . . . . . . . . . . . .  3
+   2.  Purpose/Technical Background . . . . . . . . . . . . . . . . .  3
+   3.  Protocol Specifications  . . . . . . . . . . . . . . . . . . .  3
+     3.1.  Mutual Authentication - Setup  . . . . . . . . . . . . . .  3
+       3.1.1.  Client Key Exchange Generation . . . . . . . . . . . .  4
+       3.1.2.  Message 1: Client Hello  . . . . . . . . . . . . . . .  4
+       3.1.3.  Server Key Exchange Generation . . . . . . . . . . . .  5
+       3.1.4.  Message 2: Server Hello  . . . . . . . . . . . . . . .  5
+       3.1.5.  Server Shared Key Calculation  . . . . . . . . . . . .  6
+       3.1.6.  Client Shared Key Calculation  . . . . . . . . . . . .  6
+       3.1.7.  Message 3: Server Certificate and Verification . . . .  7
+       3.1.8.  Message 4: Client Verification . . . . . . . . . . . .  7
+       3.1.9.  Data Transfer  . . . . . . . . . . . . . . . . . . . .  7
+     3.2.  Trust Model  . . . . . . . . . . . . . . . . . . . . . . .  7
+     3.3.  Certificate Verification and Revocations . . . . . . . . .  9
+     3.4.  Confidential and Integrous Communications  . . . . . . . . 10
+     3.5.  Algorithm Specifications . . . . . . . . . . . . . . . . . 10
+     3.6.  Shutdown . . . . . . . . . . . . . . . . . . . . . . . . . 11
+   4.  Normative References . . . . . . . . . . . . . . . . . . . . . 11
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 11
+   Intellectual Property and Copyright Statements . . . . . . . . . . 13
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 2]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+1.  Introduction
+
+   RFC's (Request for Comments) are a publication of the Internet
+   Engineering Task Force (IETF).  RFC's have many purposes including
+   the publication of standards, general information, and best
+   practices.
+
+1.1.  Requirements Language
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+
+2.  Purpose/Technical Background
+
+   The primary goal of SITH is to provide a secure channel between two
+   communicating peers in the Playground network.  The only requirement
+   from the underlying RIPP transport is a reliable, in-order data
+   stream.  Specifically, the secure channel should provide the
+   following properties:
+
+   1.  Authentication: Both the server and the client need to be
+       mutually authenticated.  For the key establishment phase,
+       Elliptic Curve Diffie-Hellman Ephemeral (ECDHE) using the
+       specific x25519 curve is to be used.  Authentication can happen
+       via the Elliptic Curve Digital Signature Algorithm (ECDSA) using
+       the specific secp256k1 curve.  Separating the algorithms for key
+       establishment and authentication ensures that complete forward
+       secrecy is maintained while communicating.  A DH handshake with
+       an elliptic curve DSA certificate and elliptic curve Diffie-
+       Hellman key agreement can be faster than a one-operation RSA
+       handshake.
+
+   2.  Confidentiality: Data sent over the channel after establishment
+       is only visible to the endpoints.  Symmetric cryptography (AEAD)
+       is used for data encryption.
+
+   3.  Integrity: Data sent over the channel after establishment cannot
+       be modified by attackers without detection.
+
+
+3.  Protocol Specifications
+
+3.1.  Mutual Authentication - Setup
+
+   The ephemeral Diffie-Hellman handshake in the SITH protocol uses two
+   different mechanisms: one for establishing a shared secret and the
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 3]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   other for authentication.The communicating parties with different
+   secrets exchange messages to obtain the shared secret.
+
+   The SITH handshake can be visualized as below:
+
+
+         Client                                         Server
+     +--------------+
+     |Generate Keys |
+     +--------------+
+     +--------------+
+     | ClientHello  |
+     |--------------|+--------------------------->
+     |-ClientRandom |                              +--------------+
+     |-Public Value |                              |Generate Keys |
+     |-Certificates |                              +--------------+
+     +--------------+                              +--------------+
+                                                   | ServerHello  |
+                     <----------------------------+|--------------|
+                                                   |-ServerRandom |
+                                                   |-Public Value |
+                                                   |-Certificates |
+                                                   +--------------+
+     +--------------+                              +--------------+
+     |Key Derivation|                              |Key Derivation|
+     +--------------+                              +--------------+
+     +--------------+
+     |Client Finish |
+     |--------------|+--------------------------->
+     |-Signature    |                              +--------------+
+     +--------------+                              |Server Finish |
+                     <----------------------------+|--------------|
+                                                   |-Signature    |
+                                                   +--------------+
+                       Figure 1. SITH Handshake
+
+
+3.1.1.  Client Key Exchange Generation
+
+   The client begins by calculating a private/public keypair for key
+   exchange.  An elliptical curve method, using the x25519 curve is
+   chosen to generate the 32 byte private key.  The public key is
+   derived from the corresponding x25519 curve.
+
+3.1.2.  Message 1: Client Hello
+
+   When a client first connects to a server, it is REQUIRED to send the
+   ClientHello as its first SITH message.  This must include the 32 byte
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 4]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   "random", the "public value" of the selected Elliptic Curve ((EC)DHE
+   x25519) along with the appropriate certificate and relevant CA
+   (explained in the trust model section) which will be validated by the
+   server.  Since the SITH protocol only supports one group, all the
+   above fields are mandatory while initiating the ClientHello message.
+
+   Below is the SITH packet in Playground format.  The HELLO packet will
+   include Type, Random, PublicValue, and Certificates.
+
+
+       class SITHPacket(PacketType):
+
+           DEFINITION_IDENTIFIER = "SITH.kandarp.packet"
+           DEFINITION_VERSION = "1.0"
+
+           FIELDS = [
+
+             ("Type", STRING), // HELLO, FINISH, DATA, CLOSE
+             ("Random", BUFFER({Optional: True})),
+             ("PublicValue", BUFFER({Optional: True})),
+             ("Certificate", LIST(BUFFER)({Optional: True})),
+             ("Signature", BUFFER({Optional: True})),
+             ("Ciphertext", BUFFER({Optional: True}))
+           ]
+
+           Figure 2. SITH Packet in Playground Format
+
+
+3.1.3.  Server Key Exchange Generation
+
+   The server also starts by calculating a private/public keypair for
+   key exchange.  An elliptical curve method, using the x25519 curve is
+   chosen to generate the 32 byte private key.  The public key is
+   derived from the corresponding x25519 curve similar to how a client
+   started the connection.
+
+3.1.4.  Message 2: Server Hello
+
+   The server will send this message in response to a ClientHello
+   message.  This must include the 32 byte "random" and the "public
+   value" of the selected Elliptic Curve ((EC)DHE).
+
+   Refer to Figure 2 for the SITH Packet format.  The HELLO Packet will
+   include Type, Random, PublicValue, and Certificates.
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 5]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+3.1.5.  Server Shared Key Calculation
+
+   The server now has the information to calculate the shared secret.
+
+   1.  Client Public Key (from Client Hello)
+
+   2.  Server Private Key (from Server Key Exchange Generation)
+
+   3.  Combine 1 and 2 to generate the shared secret
+
+   4.  SHA256 hash of ClientHello and ServerHello
+
+   Now we want to derive our server_iv, server_read and server_write
+   from the above information.  AES GCM takes in 12 bytes of IV.  Since
+   the recommended mode in SITH is AES GCM with 128 bit block size, the
+   key size is 128 bits.  Therefore, we generate them using the below
+   formula -
+
+      server_iv = SHA256(3 and 4 from above)[96:192]
+
+      server_write = SHA256(SHA256(3 and 4 from above))[:128]
+
+      server_read = SHA256(SHA256(3 and 4 from above))[128:]
+
+   The client_read is the same as server_write and the server_read is
+   the same as client_write.
+
+3.1.6.  Client Shared Key Calculation
+
+   The client now has the information to calculate the shared secret.
+
+   1.  Server Public Key (from Server Hello)
+
+   2.  Client Private Key (from Client Key Exchange Generation)
+
+   3.  Combine 1 and 2 to generate the shared secret
+
+   4.  SHA256 hash of ClientHello and ServerHello
+
+   Now we want to derive our client_iv, client_read and client write
+   from the above information.  AES GCM takes in 12 bytes of IV.  Since
+   the recommended mode in SITH is AES GCM with 128 bit block size, the
+   key size is 128 bits.  Therefore, we generate them using the below
+   formula -
+
+      client_iv = SHA256(3 and 4 from above)[:96]
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 6]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+      client_read = SHA256(SHA256(3 and 4 from above))[:128]
+
+      client_write = SHA256(SHA256(3 and 4 from above))[128:]
+
+   The client_read is the same as server_write and the server_read is
+   the same as client_write.
+
+3.1.7.  Message 3: Server Certificate and Verification
+
+   The server sends the appropriate certificate and relevant CA cert
+   (explained in the trust model section) which will be validated by the
+   client.  To prove that the server owns the server certificate, it
+   signs a hash of the handshake messages using the certificate's
+   private key.  The signature can be proven valid by the client by
+   using the certificate's public key.
+
+   Refer to Figure 2 for the SITH Packet format.  The Finish packet will
+   include Type=FINISH, and Signature.
+
+3.1.8.  Message 4: Client Verification
+
+   To prove that the client owns the client certificate, it signs a hash
+   of the handshake messages using the certificate's private key.  The
+   signature can be proven valid by the server by using the
+   certificate's public key.
+
+   Refer to Figure 2 for the SITH Packet format.  The Finish packet will
+   include Type=FINISH, and Signature.
+
+3.1.9.  Data Transfer
+
+   At this stage, the SITH handshake is concluded and both the client
+   and server can start transmitting and receiving bulk data from each
+   other.  Each message is protected using the Authenticated Encryption
+   with Additional Data (AEAD) with the default algorithm as
+   AES_128_GCM.  This ensures that the data is simultaneously encrypted
+   and integrity protected.
+
+   Refer to Figure 2 for the SITH Packet format.  The Data packet will
+   include Type=DATA, and Ciphertext.
+
+3.2.  Trust Model
+
+   1.  The first, or topmost, link in the chain of trust is the
+       Certification Authority (CA).  CAs are deemed to be trusted
+       organizations.
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 7]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   2.  The very existence of the CA marks the first step in the
+       establishment of the line of trust.
+
+   3.  The root CA certificate in the chain of trust will have the
+       subject name or address of the known CA as well as a
+       corresponding signature.  The root CA certificate is the only
+       certificate in the chain that can be self-signed.  This signature
+       must be verified with attached CA public key.
+
+   4.  The Playground entities who desire a certificate send various
+       information such as designated name, business registration number
+       or other serial number which is then verified by the CA.
+
+   5.  As seen before, the user then generates the ECDHE key pair and
+       uses the private key to sign a Certificate Signing Request (CSR)
+       which will contain the public key of the generated public-private
+       pair among other information.
+
+   6.  The user will also add a suggested address pre-fix in their
+       Playground CSR.  If the CSR is approved, this range of addresses
+       will be assigned to the user allowing that user to act as the
+       intermediary CA to sign any certificates for subjects in that
+       address range.
+
+   7.  The CA finally signs the user's certificate using the private key
+       of the public-private key pair whose public key is contained in
+       the CA's root certificate.
+
+   8.  Certificates will be generated using the X.509 format, and only
+       CAs may sign certificates.  Signature verification will occur
+       through the entire certificate chain.  A signature must be
+       verified with the public key of the previous CA certificate in
+       the chain, and only the root certificate may be self-signed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 8]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+     +-----------------------------++--------------------------+
+     |Certificate Signature Request||     Certificate X.509    |
+     |-----------------------------||--------------------------|
+     | +Identifying Information    ||+Version Number           |
+     |  -Distinguished Name (DN)   ||+Serial Number            |
+     |  -Organization              ||+Signature Algorithm ID   |
+     |  -Address Pre-fix           ||+Issuer Name              |
+     |                             ||+Validity Period          |
+     | +Applicant's Public Key     ||+Subject Name             |
+     |                             ||+Subject Public Key Info  |
+     | +Signed with Applicant's    || -Public Key Algorithm    |
+     |  Private Key                || -Subject Public Key      |
+     +-----------------------------+|+Issuer Unique Identifier |
+                                    |+Subject Unique Identifier|
+                                    +--------------------------+
+
+      +-----------+   +-----------+   +-----------+
+      |    CSR    |   |    CA     |   | CA Cert   |
+      |-----------|+->|-----------|+->|-----------|
+      |+ID        |   | +Verifies |   |+Subject   |<-+
+      |+Pre-fix   |   |  User ID  |   |+Public Key|  |
+      |+Public Key|   |           |   |+Signature |  |
+      |+Signature |   |           |   |           |  | Verify
+      +-----------+   +-----------+   +-----------+  | Signature
+                                      | User Cert |  | w/ CA Cert
+                                      |-----------|  |
+                                      |+Subject   |  |
+                                      |+Public Key|  |
+                                      |+Signature |+-+
+                                      +-----------+
+
+                      Figure 3. Certificate Example
+
+
+3.3.  Certificate Verification and Revocations
+
+   As stated above, each certificate in the chain of trust must be
+   verified.  For the chain of trust to be valid, the following
+   conditions must be met:
+
+   1.  The root CA certificate is from a known, trusted CA.  The root
+       certificate is the only self-signed certificate in the chain of
+       trust.
+
+   2.  Each certificate must not have an expired validity period.
+
+   3.  Each signature is verified with its corresponding public key
+       through out the chain.
+
+
+
+Khandwala & Bradt            Standards Track                    [Page 9]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   4.  Each issuer/subject relationship is verified throughout the
+       chain.
+
+   5.  Any certificate in the chain must not be in the Certificate
+       Revocation List (CRL).
+
+   If any certificate in the chain of trust breaks any of these
+   conditions, that certificate is considered invalid and must be
+   revoked by adding it to the CRL.  Certificates in the CRL is stored
+   by its corresponding serial number and is stored indefinitely.
+
+3.4.  Confidential and Integrous Communications
+
+   Each message is protected using the Authenticated Encryption with
+   Additional Data (AEAD) with the default algorithm as AES_128_GCM.
+   This ensures that the data is simultaneously encrypted and integrity
+   protected.  The calculated share key is used with a new
+   initialization vector (IV), or nonce, which is generated for every
+   message encryption.  Any message that cannot be authenticated will be
+   dropped.
+
+   Below is the AEAD Function Model:
+
+
+   AEADEncrypted = AEAD_Encrypt(shared_key, nonce, plaintext, \
+           additional_data)
+
+   additional_data = None
+
+               Figure 4. AEAD Function Model
+
+
+3.5.  Algorithm Specifications
+
+   1.  Elliptic Curve Diffie-Hellman Ephemeral ((EC)DHE) using the
+       x25519 curve for key exchange.
+
+   2.  Elliptic Curve Digital Signature Algorithm (ECDSA) using the
+       secp256k1 curve and SHA-256 hash for signatures.
+
+   3.  Advanced Encryption Standard (AES) with Galois/Counter Mode (GCM)
+       with block size of 128 bit as a cipher for encryption and
+       integrity.
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                   [Page 10]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+3.6.  Shutdown
+
+   Any party who wants to close the connection or is encountering an
+   error should send a close message and indicate the closure
+   information or error.  Error alerts indicate abortive closure of the
+   connection.  Upon receiving an error alert, the SITH implementation
+   SHOULD indicate an error to the application and MUST NOT allow any
+   further data to be sent or received on the connection.
+
+   Refer to Figure 2 for the SITH packet format.  The CLOSE packet will
+   require the Type field and the error message can use the ciphertext
+   field.
+
+
+4.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, DOI 10.17487/
+              RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2360]  Scott, G., "Guide for Internet Standards Writers", BCP 22,
+              RFC 2360, DOI 10.17487/RFC2360, June 1998,
+              <https://www.rfc-editor.org/info/rfc2360>.
+
+   [RFC5246]  Dierks, T. and E. Rescorla, "The Transport Layer Security
+              (TLS) Protocol Version 1.2", RFC 5246, DOI 10.17487/
+              RFC5246, August 2008,
+              <https://www.rfc-editor.org/info/rfc5246>.
+
+   [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
+              Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
+              <https://www.rfc-editor.org/info/rfc8446>.
+
+
+Authors' Addresses
+
+   Kandarp Khandwala (editor)
+   JHU Network Security Fall 2018
+   JHU 160 Malone Hall/3400 North Charles St.
+   Baltimore, MD  21218
+   USA
+
+   Phone: +1 443-763-9251
+   Email: kck@jhu.edu
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                   [Page 11]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   Richard Bradt (editor)
+   JHU Network Security Fall 2018
+   JHU 160 Malone Hall/3400 North Charles St.
+   Baltimore, MD  21218
+   USA
+
+   Phone: +1 205-789-9019
+   Email: rbradt1@jhu.edu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                   [Page 12]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+Full Copyright Statement
+
+   Copyright (C) Seth James Nielson (2018).  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.  However, this
+   document itself may not be modified in any way, such as by removing
+   the copyright notice or references to the PLAYGROUND experiment or
+   other associated organizations, except by explicit permission.
+
+   The limited permissions granted above are perpetual and will not be
+   revoked by SETH JAMES NIELSON or his successors or assigns.
+
+   This document and the information contained herein is provided on an
+   "AS IS" basis and SETH JAMES NIELSON and associated academic
+   institutions DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING
+   BUT NOT LIMITED TO ANY WARRANTY THAT THE USE OF THE INFORMATION
+   HEREIN WILL NOT INFRINGE ANY RIGHTS OR ANY IMPLIED WARRANTIES OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
+
+
+Intellectual Property
+
+   The PLAYGROUND framework and student submissions for PLAYGROUND are
+   intended to be free of any intellectual property conflicts.  All
+   submitting parties, especially students, are not allowed to submit
+   source code, specifications, or other components that are known to be
+   protected by copyright, patents, or other IP mechanisms.  Students
+   submitting creative content grant shared rights and ownership of
+   their content to the PLAYGROUND project.  Specifically, any
+   submission can be used in future educational settings including
+   subsequent PLAYGROUND experiments.
+
+   Any interested party is invited to bring to the experiment director's
+   attention any copyrights, patents or patent applications, or other
+   proprietary rights which may cover technology that may be currently
+   in use without permission.
+
+   It should be noted that these statements have not been reviewed by
+   legal counsel.  Moreover, the academic institutions at which
+   PLAYGROUND experiments take place may have additional or even
+   conflicting copyright and intellectual property rules.  Accordingly,
+   concerned parties may need to contact their own lawyer and/or
+   resources at their institution to understand the rights and
+
+
+
+Khandwala & Bradt            Standards Track                   [Page 13]
+
+RFC 2                           SITH PRFC                  November 2018
+
+
+   limitations associated with code donated to a PLAYGROUND experiment.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Khandwala & Bradt            Standards Track                   [Page 14]
+
